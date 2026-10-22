@@ -10,14 +10,20 @@ android {
         applicationId 'com.gensolar.pro'
         minSdk 23
         targetSdk 35
-        versionCode 2
-        versionName '1.1'
+        versionCode 3
+        versionName '1.2'
     }
 }
 
+// Firebase Auth 24.x calls ContextCompat.registerReceiver(..., flags).
+// Pin Core to avoid an older transitive AndroidX Core version winning resolution.
+configurations.configureEach {
+    resolutionStrategy.force 'androidx.core:core:1.15.0'
+}
 
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:34.3.0')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
+    implementation 'androidx.core:core:1.15.0'
 }
