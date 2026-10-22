@@ -1,16 +1,10 @@
-GenSolar Pro Android wrapper project
+GenSolar Pro — Android solar calculator project
 
-This project packages the existing GenSolar Pro calculator HTML as an Android app using WebView.
+Personal-use estimator with monthly bill, monthly units, roof area and target-capacity sizing; editable engineering and commercial assumptions; panel count based on selected module wattage; generation/payback estimates; contextual help popups; state resource links for Telangana, Andhra Pradesh, Odisha and Chhattisgarh; CSV export; and native Android Print/Save PDF integration.
 
-Build an APK:
-1. Open this folder in Android Studio (recent version) on a computer with internet access.
-2. Let Android Studio sync and install required Android SDK components.
-3. Select Build > Build Bundle(s) / APK(s) > Build APK(s).
-4. The debug APK will be created at app/build/outputs/apk/debug/app-debug.apk.
+Important: This is a preliminary estimation tool, not a substitute for a site survey, electrical design, DISCOM approval, supplier quotation or confirmation of government scheme eligibility. Default prices, irradiation and performance values are editable assumptions. Official scheme links are references and must be checked for current eligibility and notices.
 
-Alternative cloud build:
-1. Upload this project folder to a GitHub repository.
-2. Open Actions and run "Build GenSolar APK" (or push to main/master).
-3. Download the artifact named GenSolar-Pro-debug-APK from the completed workflow.
+Android project root: gensolar-android/
+Workflow: .github/workflows/build-apk.yml (copy to the repository root .github/workflows/ to build this project).
 
-Note: This is a debug APK build setup, not a signed production release. For Play Store distribution, create and securely manage a release signing key. The calculator is bundled locally and its calculation interface can run offline.
+App icon: your supplied GenSolar lightning logo is installed in Android mipmap density folders and configured as the launcher icon in AndroidManifest.xml.
