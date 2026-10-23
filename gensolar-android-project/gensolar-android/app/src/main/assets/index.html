@@ -53,6 +53,7 @@
     <label id="phoneLabel">Mobile number</label><div class="phone-input-wrap"><span class="phone-prefix" aria-label="India country code">+91</span><input id="loginPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}"></div>
     <button id="sendOtpButton" class="button" onclick="requestRealOtp()">Send OTP</button>
     <div id="otpFields" class="hide-auth"><label for="loginOtp">6-digit OTP</label><input id="loginOtp" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter SMS code" maxlength="6"><button class="button" onclick="verifyRealOtp()">Verify OTP</button></div>
+    <details style="border:1px dashed #d5b66a;border-radius:10px;padding:12px;margin-top:8px"><summary style="cursor:pointer;font-weight:700;color:#805d12">Development testing profiles (demo only)</summary><p class="note">These profiles are for screen and calculation testing only. They do not authenticate a Firebase user or grant real company permissions.</p><label for="testProfileId">Select test ID</label><select id="testProfileId"><option value="GS-CUST-TEST-001">GS-CUST-TEST-001 — Customer</option><option value="GS-SALES-TEST-001">GS-SALES-TEST-001 — Sales Representative</option><option value="GS-MGR-TEST-001">GS-MGR-TEST-001 — Manager UI preview</option></select><button type="button" class="button alt" onclick="enterTestProfile()">Open demo profile</button></details>
     <p id="authMessage" role="status" aria-live="polite"></p>
     <button class="button alt" onclick="backToRoles()">Back</button>
    </div>
@@ -178,6 +179,23 @@ window.onGenSolarAuthSuccess=function(uid,role,phone){
  else {$('crmWorkspace').classList.add('hide-auth');}
  authStatus('');
 };
+function enterTestProfile(){
+ const id=$('testProfileId')?.value||'GS-CUST-TEST-001';
+ const demo={ 'GS-CUST-TEST-001':{role:'customer',phone:'0000000001'}, 'GS-SALES-TEST-001':{role:'rep',phone:'0000000002'}, 'GS-MGR-TEST-001':{role:'manager',phone:'0000000003'} }[id];
+ if(!demo)return;
+ activePhone=demo.phone; activeProfile=demo.role; window.genSolarDemoMode=true; window.genSolarTestId=id;
+ applyPanelPriceForRole();
+ $('authGate').classList.add('hide-auth'); $('calculatorMain').classList.remove('hide-auth');
+ $('crmWorkspace').classList.toggle('hide-auth',activeProfile==='customer');
+ if(activeProfile!=='customer')renderCRM();
+ $('roleNotice') && ($('roleNotice').textContent='DEMO TEST PROFILE '+id+' — local-only UI testing. Not authenticated; do not enter real customer or company data.');
+ showDemoTestBanner();
+}
+function showDemoTestBanner(){
+ let banner=$('demoTestBanner');
+ if(!banner){banner=document.createElement('div');banner.id='demoTestBanner';banner.className='mode-banner';const main=$('calculatorMain');main?.parentNode?.insertBefore(banner,main);}
+ if(banner)banner.textContent='DEMO TEST MODE ('+(window.genSolarTestId||'')+'). Local UI only; Firebase data access and production permissions are not granted.';
+}
 function demoLogin(){authStatus('Demo login has been disabled. Use Firebase phone OTP.',true);}
 function logoutDemo(){if(window.GenSolarAuth)window.GenSolarAuth.signOut();activeProfile=null;activePhone='';$('authGate').classList.remove('hide-auth');$('crmWorkspace').classList.add('hide-auth');$('calculatorMain').classList.add('hide-auth');}
 function currentEstimate(){
