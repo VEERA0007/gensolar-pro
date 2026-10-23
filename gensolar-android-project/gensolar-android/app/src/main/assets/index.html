@@ -44,7 +44,7 @@ html{scroll-behavior:smooth}body{background:var(--gs-canvas);color:var(--gs-ink)
 
 /* Welcome-screen match pass: retain native splash logo, use company banner on all in-app pages */
 .welcome-screen{width:100%;max-width:520px;min-height:100dvh;background:#eaf3ee}
-.welcome-hero{min-height:66dvh;padding:22px 22px 26px;background:linear-gradient(180deg,rgba(3,35,29,.08) 0%,rgba(3,35,29,.18) 38%,rgba(3,39,29,.86) 100%),url('https://gensolar.in/assets/images/Solar/Homepageimgs/solar-rooftop.jpg') center/cover no-repeat,#477e70}
+.welcome-hero{min-height:66dvh;padding:22px 22px 26px;background:linear-gradient(180deg,rgba(3,35,29,.08) 0%,rgba(3,35,29,.18) 38%,rgba(3,39,29,.86) 100%),url('https://gensolar.in/assets/images/Solar/Homepageimgs/residential-rooftop-solar-in-telangana.jpg') center/cover no-repeat,#477e70}
 .welcome-hero:before{display:none}
 .welcome-brand{align-items:flex-start;text-align:left;gap:7px}
 .welcome-brand img{width:min(88%,320px);height:62px;object-fit:contain;object-position:left center;background:transparent;border-radius:0;padding:0}
@@ -64,6 +64,19 @@ html{scroll-behavior:smooth}body{background:var(--gs-canvas);color:var(--gs-ink)
 .trust-row small{font-size:9px}
 .new-brand{align-items:center}
 .new-brand img{width:min(88%,320px);height:64px;object-fit:contain}
+
+
+/* Reference welcome layout: photo hero, three feature labels and three information cards */
+.welcome-hero{background-image:linear-gradient(180deg,rgba(4,38,31,.08) 0%,rgba(4,38,31,.16) 32%,rgba(4,38,31,.92) 100%),url('https://gensolar.in/assets/images/Solar/Homepageimgs/residential-rooftop-solar-in-telangana.jpg');background-position:center;background-size:cover}
+.welcome-features{margin-top:14px}
+.welcome-info-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:15px}
+.welcome-info-cards>div{min-width:0;padding:10px 8px;background:rgba(0,52,38,.78);border:1px solid rgba(255,255,255,.18);border-radius:10px;backdrop-filter:blur(5px)}
+.welcome-info-cards b,.welcome-info-cards small{display:block}
+.welcome-info-cards b{font-size:11px;line-height:1.2;color:#fff}
+.welcome-info-cards small{font-size:9px;line-height:1.3;color:#e2f4e9;margin-top:5px}
+.welcome-hero{min-height:68dvh}
+.welcome-copy{padding:22px 0 15px}
+@media(max-height:740px){.welcome-hero{min-height:64dvh;padding-top:16px;padding-bottom:18px}.welcome-copy{padding-top:15px}.welcome-info-cards>div{padding:7px 6px}}
 
 </style>
 <style>
@@ -104,7 +117,8 @@ html{scroll-behavior:smooth}body{background:var(--gs-canvas);color:var(--gs-ink)
   <div class="welcome-hero">
    <div class="welcome-brand"><img src="https://gensolar.in/assets/images/Solar/Homepageimgs/Gensolarlogo_wht.png" alt="Gen Solar official company logo"><span>Powering a Greener Tomorrow</span></div>
    <div class="welcome-copy"><p class="eyebrow">CLEAN ENERGY · SMART ENGINEERING</p><h1>Clean Energy<br>Brighter Future</h1><p>Solar solutions for homes, businesses and industry.</p></div>
-   <div class="welcome-features"><span>♧<small>Solar Solutions</small></span><span>⚙<small>Engineering</small></span><span>↗<small>Business Growth</small></span></div>
+   <div class="welcome-features"><span>☀<small>Sustainable Energy</small></span><span>⚙<small>Advanced Engineering</small></span><span>✓<small>Reliable Performance</small></span></div>
+   <div class="welcome-info-cards"><div><b>Solar Solutions</b><small>Homes, Commercial &amp; Industrial</small></div><div><b>Engineering</b><small>Design, Installation &amp; Support</small></div><div><b>Business Growth</b><small>Reduce Costs, Increase Savings</small></div></div>
   </div>
   <div class="welcome-actions"><button class="button welcome-primary" onclick="showLoginScreen()">Login <span>→</span></button><button class="button alt welcome-secondary" onclick="showExploreScreen()">Explore GenSolar</button><div class="trust-row"><span>⚡<small>Save Electricity Cost</small></span><span>♧<small>Go Green</small></span><span>✓<small>Reliable Support</small></span></div></div>
  </section>
