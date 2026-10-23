@@ -182,7 +182,7 @@ const DEMO_KEY='gensolar_demo_leads_v1';
 function demoLeads(){try{return JSON.parse(localStorage.getItem(DEMO_KEY)||'[]')}catch(e){return []}}
 function saveDemoLeads(rows){localStorage.setItem(DEMO_KEY,JSON.stringify(rows))}
 function showWelcomeScreen(){['welcomeScreen'].forEach(id=>$(id)?.classList.remove('hide-auth'));['exploreScreen','identifierScreen','roleScreen','loginForm'].forEach(id=>$(id)?.classList.add('hide-auth'))}
-function showExploreScreen(){['exploreScreen'].forEach(id=>$(id)?.classList.remove('hide-auth'));['welcomeScreen','identifierScreen','roleScreen','loginForm'].forEach(id=>$(id)?.classList.add('hide-auth'))}
+function showExploreScreen(){window.location.href='https://gensolar.in/';}
 function showLoginScreen(){showIdentifierScreen()}
 function showIdentifierScreen(){['identifierScreen'].forEach(id=>$(id)?.classList.remove('hide-auth'));['welcomeScreen','exploreScreen','roleScreen','loginForm'].forEach(id=>$(id)?.classList.add('hide-auth'))}
 function showRoleScreen(){ $('roleScreen').classList.remove('hide-auth');$('welcomeScreen').classList.add('hide-auth');$('exploreScreen').classList.add('hide-auth');$('identifierScreen').classList.add('hide-auth');$('loginForm').classList.add('hide-auth');}
