@@ -41,6 +41,30 @@ html{scroll-behavior:smooth}body{background:var(--gs-canvas);color:var(--gs-ink)
 #welcomeScreen .trust-row small{font-size:12px;line-height:1.3;color:#355d4d}
 @media(max-height:760px){#welcomeScreen .welcome-hero{min-height:64dvh}#welcomeScreen .welcome-copy{padding:24px 0 18px}#welcomeScreen .welcome-copy h1{font-size:34px}#welcomeScreen .welcome-brand img{height:68px}}
 
+
+/* Welcome-screen match pass: retain native splash logo, use company banner on all in-app pages */
+.welcome-screen{width:100%;max-width:520px;min-height:100dvh;background:#eaf3ee}
+.welcome-hero{min-height:66dvh;padding:22px 22px 26px;background:linear-gradient(180deg,rgba(3,35,29,.08) 0%,rgba(3,35,29,.18) 38%,rgba(3,39,29,.86) 100%),url('https://gensolar.in/assets/images/Solar/Homepageimgs/solar-rooftop.jpg') center/cover no-repeat,#477e70}
+.welcome-hero:before{display:none}
+.welcome-brand{align-items:flex-start;text-align:left;gap:7px}
+.welcome-brand img{width:min(88%,320px);height:62px;object-fit:contain;object-position:left center;background:transparent;border-radius:0;padding:0}
+.welcome-brand span{font-size:11px;font-weight:750;letter-spacing:.14em;text-transform:uppercase}
+.welcome-copy{padding:30px 0 22px}
+.welcome-copy .eyebrow{font-size:10px;letter-spacing:.12em;margin-bottom:8px}
+.welcome-copy h1{font-size:clamp(30px,8vw,38px);line-height:1.05;margin:8px 0 12px}
+.welcome-copy p:last-child{font-size:14px;line-height:1.45;max-width:290px}
+.welcome-features{gap:6px}
+.welcome-features span{font-size:21px;text-shadow:0 1px 8px #00291c}
+.welcome-features small{font-size:10px;font-weight:650}
+.welcome-actions{margin-top:-18px;padding:22px 22px 26px;border-radius:22px 22px 0 0;z-index:2}
+.welcome-primary{border-radius:12px}
+.welcome-secondary{border-radius:12px;padding:14px 16px}
+.trust-row{margin-top:20px;gap:4px}
+.trust-row span{font-size:17px}
+.trust-row small{font-size:9px}
+.new-brand{align-items:center}
+.new-brand img{width:min(88%,320px);height:64px;object-fit:contain}
+
 </style>
 <style>
 /* Step-by-step themed screens */
@@ -84,7 +108,7 @@ html{scroll-behavior:smooth}body{background:var(--gs-canvas);color:var(--gs-ink)
   </div>
   <div class="welcome-actions"><button class="button welcome-primary" onclick="showLoginScreen()">Login <span>→</span></button><button class="button alt welcome-secondary" onclick="showExploreScreen()">Explore GenSolar</button><div class="trust-row"><span>⚡<small>Save Electricity Cost</small></span><span>♧<small>Go Green</small></span><span>✓<small>Reliable Support</small></span></div></div>
  </section>
- <section id="exploreScreen" class="auth-card new-login hide-auth"><button class="back-link" onclick="showWelcomeScreen()">← Back</button><div class="new-brand"><img src="gensolar_app_icon.png" alt="Gen Solar logo"><p>Powering a Greener Tomorrow</p></div><h2>Explore GenSolar</h2><p class="subcopy">Solar solutions for homes, businesses and industries.</p><div class="crm-panel"><h3>Solar Solutions</h3><p>Residential rooftops · Commercial rooftops · Industrial projects · Solar carports · Ground-mounted systems</p><h3>Engineering & Support</h3><p>Project estimation, system design, installation planning and customer support.</p><p><strong>Customer support:</strong> +91 93987 35165</p></div><button class="button continue-button" onclick="showLoginScreen()">Login to continue <span>→</span></button></section>
+ <section id="exploreScreen" class="auth-card new-login hide-auth"><button class="back-link" onclick="showWelcomeScreen()">← Back</button><div class="new-brand"><img src="https://gensolar.in/assets/images/Solar/Homepageimgs/Gensolarlogo_wht.png" alt="Gen Solar official company logo"><p>Powering a Greener Tomorrow</p></div><h2>Explore GenSolar</h2><p class="subcopy">Solar solutions for homes, businesses and industries.</p><div class="crm-panel"><h3>Solar Solutions</h3><p>Residential rooftops · Commercial rooftops · Industrial projects · Solar carports · Ground-mounted systems</p><h3>Engineering & Support</h3><p>Project estimation, system design, installation planning and customer support.</p><p><strong>Customer support:</strong> +91 93987 35165</p></div><button class="button continue-button" onclick="showLoginScreen()">Login to continue <span>→</span></button></section>
  <section id="identifierScreen" class="auth-card new-login hide-auth">
   <button class="back-link" onclick="showWelcomeScreen()">← Back</button>
   <div class="login-hero-image"></div>
