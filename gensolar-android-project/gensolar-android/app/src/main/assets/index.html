@@ -95,7 +95,7 @@ html,body{margin:0;height:100%;background:#fff}
  position:fixed;inset:0;z-index:1000;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;font-family:var(--font);color:var(--ink);
  background:linear-gradient(90deg,#fcfdfd,#c6e1f1);padding-top:env(safe-area-inset-top,0px)}
 .wgate *{box-sizing:border-box}
-.wgate .wapp{--u:min(1vw,4.8px);width:100%;max-width:480px;margin:0 auto;min-height:max(100svh,calc(var(--u)*223));background:#fff;position:relative;overflow:visible}
+.wgate .wapp{--u:min(1vw,4.8px);width:100%;max-width:480px;margin:0 auto;height:100%;min-height:calc(var(--u)*212);background:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column}.wgate .hero{flex:none}.wgate .sheet{flex:1 1 auto;min-height:0!important}.wgate .hero{background:#034635!important}.wgate .feats{background:rgba(255,255,255,.62);border-radius:calc(var(--u)*3);padding:calc(var(--u)*1.6) 0 calc(var(--u)*1.2);box-shadow:0 0 calc(var(--u)*4) rgba(255,255,255,.55)}.wgate .hero img.hero-bg{left:0;top:0;width:calc(var(--u)*100);height:auto;z-index:0}
 .wgate a{color:inherit;text-decoration:none}
 .wgate p,.wgate h1{margin:0}
 .wgate button{font-family:inherit;cursor:pointer}
@@ -161,8 +161,7 @@ html,body{margin:0;height:100%;background:#fff}
 <div id="splash"><img src="gensolar_app_icon.png" alt="GenSolar"><p>POWERING A GREENER TOMORROW</p></div><script>setTimeout(function(){var e=document.getElementById("splash");if(e){e.classList.add("out");setTimeout(function(){e.remove()},500)}},1600)</script>
 <div id="authGate" class="wgate"><main class="wapp">
   <section class="hero" aria-label="Welcome">
-    <img class="photo-right" src="hero-right.jpg" alt="" width="369" height="250">
-    <img class="photo-bottom" src="hero-bottom.jpg" alt="" width="839" height="224">
+    <img class="hero-bg" src="hero-bg.jpg" alt="" width="1024" height="1536">
     <img class="logo" src="logo-banner.png" alt="Gensolar" width="1200" height="196">
 
     <p class="abs tagline">POWERING A GREENER TOMORROW</p>
