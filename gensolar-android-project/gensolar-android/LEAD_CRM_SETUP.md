@@ -1,15 +1,17 @@
 # GenSolar Pro Lead CRM — setup and production notes
 
 ## Included in this source build
-- Role selection: Customer, Representative, Admin/Manager.
-- Demo-mode workspace and local demo lead records.
-- Existing solar calculator remains available after choosing a profile.
-- Save a calculation as a demo lead, update status, add follow-up notes, and export CSV for company demo profiles.
-- Customer demo view is filtered to the entered mobile number.
-- Android icon resources are retained; build workflow runs from repository root.
+- Android Firebase Phone OTP login.
+- Customer, representative, and manager roles read from the signed-in user's Firestore profile.
+- Lead sync bridge for Android: load leads from Firestore, save new estimates/contacts, sync status and follow-up-note changes, and delete leads.
+- Local phone storage remains as a fallback, so a cloud error should not silently erase the current device copy.
+- Existing solar calculator, estimate sharing, PDF printing, and Engineering & Site Design workspace remain available.
 
-## IMPORTANT — demo mode is not production authentication
-The current login screen is explicitly marked DEMO MODE. It does NOT send an OTP, verify a phone number, securely authenticate employees, synchronize records between phones, or enforce server-side access controls. Demo records are stored in WebView local storage on this device. Do not enter real customer data until production backend is connected.
+## Important limitations before real customer use
+- The Android lead-sync code is committed, but Firestore rules must be published from the included `firestore.rules` file before cloud sync can work safely.
+- The browser version does not have phone OTP or the Android Firestore bridge; its lead data stays local to that browser.
+- Employee/manager roles must be assigned by an administrator in Firebase Console. A new phone-number account is created as Customer.
+- Real SMS delivery, cross-device sync, and permission boundaries still need a live test with real test accounts. Do not enter real customer data until rules are published and those tests pass.
 
 ## Recommended production architecture
 1. Firebase Authentication Phone provider for customer OTP. Configure supported app verification/reCAPTCHA requirements and authorized domains/app fingerprints as required.
@@ -44,3 +46,15 @@ The current login screen is explicitly marked DEMO MODE. It does NOT send an OTP
 - Verify PDF print/save on actual Android devices.
 - Review privacy, consent, retention, and applicable Indian data-protection requirements with your organization.
 - Generate a signed release App Bundle only after testing; do not distribute a debug APK for production.
+
+
+## One-time Firebase rules setup
+1. Open Firebase Console and select the existing GenSolar project.
+2. Open **Firestore Database → Rules**.
+3. Open the repository file `gensolar-android-project/gensolar-android/firestore.rules`.
+4. Copy the complete file into the Rules editor and select **Publish**.
+5. Create/verify a test customer by signing in with OTP. Customer accounts are created with the Customer role automatically.
+6. For each company employee, open Firestore's `users` collection and edit that employee's document (the document ID is their Firebase Authentication UID). Set `role` to `rep` or `manager`, and set `organizationId` to the same company ID for all members of the company. Never let employees choose their own role in the app.
+7. Test with non-sensitive sample leads: a customer should see their own leads; a representative should see assigned leads; a manager should see leads for their organization.
+
+Do not publish permissive rules such as `allow read, write: if true`. If a permission test fails, stop before entering customer data.

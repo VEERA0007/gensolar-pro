@@ -1,0 +1,35 @@
+name: GenSolar WebView UI Smoke Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gensolar-android-project/gensolar-android/app/src/main/assets/**"
+      - "tests/gensolar-webview-smoke.mjs"
+      - ".github/workflows/android-ui-smoke.yml"
+  pull_request:
+    paths:
+      - "gensolar-android-project/gensolar-android/app/src/main/assets/**"
+      - "tests/gensolar-webview-smoke.mjs"
+      - ".github/workflows/android-ui-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run GenSolar mobile WebView page smoke tests
+        run: node tests/gensolar-webview-smoke.mjs

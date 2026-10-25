@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.webkit.WebViewClient;
 import android.webkit.ValueCallback;
 import org.json.JSONObject;
+import org.json.JSONArray;
 import android.os.Bundle;
 import android.print.PrintAttributes;
 import android.print.PrintManager;
@@ -86,6 +87,7 @@ public class MainActivity extends Activity {
         });
         webView.addJavascriptInterface(new PrintBridge(), "GenSolarNative");
         webView.addJavascriptInterface(new AuthBridge(), "GenSolarAuth");
+        webView.addJavascriptInterface(new LeadBridge(), "GenSolarLeads");
         setContentView(webView);
         webView.loadUrl("file:///android_asset/index.html");
     }
@@ -203,6 +205,137 @@ public class MainActivity extends Activity {
                 ).addOnFailureListener(e -> jsError("Signed in, but profile setup failed: " + e.getMessage()));
             }
         }).addOnFailureListener(e -> jsError("Could not load account role. Check Firestore rules: " + e.getMessage()));
+    }
+
+
+    private class LeadBridge {
+        @JavascriptInterface public void loadLeads() {
+            FirebaseUser user = auth == null ? null : auth.getCurrentUser();
+            if (user == null || db == null) { leadError("Sign in before loading cloud leads."); return; }
+            db.collection("users").document(user.getUid()).get().addOnSuccessListener(profile -> {
+                String role = profile.getString("role");
+                if (role == null) role = "customer";
+                com.google.firebase.firestore.Query query = db.collection("leads");
+                if ("manager".equals(role) || "admin".equals(role)) {
+                    String org = profile.getString("organizationId");
+                    if (org == null || org.isEmpty()) { leadError("Your manager account needs an organization ID."); return; }
+                    query = query.whereEqualTo("organizationId", org);
+                } else if ("rep".equals(role) || "representative".equals(role)) {
+                    query = query.whereEqualTo("assignedRepUid", user.getUid());
+                } else {
+                    query = query.whereEqualTo("ownerUid", user.getUid());
+                }
+                query.get().addOnSuccessListener(snapshot -> {
+                    JSONArray rows = new JSONArray();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snapshot.getDocuments()) {
+                        try {
+                            JSONObject row = new JSONObject();
+                            Map<String,Object> values = doc.getData();
+                            if (values != null) for (Map.Entry<String,Object> entry : values.entrySet()) row.put(entry.getKey(), jsonValue(entry.getValue()));
+                            row.put("id", doc.getId());
+                            rows.put(row);
+                        } catch (Exception ignored) { }
+                    }
+                    js("window.onGenSolarCloudLeads && window.onGenSolarCloudLeads(JSON.parse(" + JSONObject.quote(rows.toString()) + "))");
+                }).addOnFailureListener(e -> leadError("Cloud leads could not load. Check the Firestore rules and internet connection."));
+            }).addOnFailureListener(e -> leadError("Your account profile could not be loaded."));
+        }
+
+        @JavascriptInterface public void saveLead(String json) {
+            FirebaseUser user = auth == null ? null : auth.getCurrentUser();
+            if (user == null || db == null) { leadError("Sign in before saving cloud leads."); return; }
+            final JSONObject source;
+            try { source = new JSONObject(json == null ? "{}" : json); }
+            catch (Exception e) { leadError("This lead could not be read."); return; }
+            db.collection("users").document(user.getUid()).get().addOnSuccessListener(profile -> {
+                String role = profile.getString("role");
+                if (role == null) role = "customer";
+                String org = profile.getString("organizationId");
+                if (("manager".equals(role) || "admin".equals(role) || "rep".equals(role) || "representative".equals(role))
+                        && (org == null || org.isEmpty())) {
+                    leadError("Your company account needs an organization ID before cloud leads can sync."); return;
+                }
+                String id = source.optString("id", "");
+                if (id.isEmpty()) id = "L" + System.currentTimeMillis() + Long.toString((long)(Math.random()*100000), 36);
+                Map<String,Object> data = new HashMap<>();
+                copyLeadField(source, data, "name"); copyLeadField(source, data, "phone");
+                copyLeadField(source, data, "seg"); copyLeadField(source, data, "state");
+                copyLeadField(source, data, "city"); copyLeadField(source, data, "kw");
+                copyLeadField(source, data, "net"); copyLeadField(source, data, "payback");
+                copyLeadField(source, data, "source"); copyLeadField(source, data, "quote");
+                copyLeadField(source, data, "status"); copyLeadField(source, data, "ts");
+                copyLeadField(source, data, "notes");
+                data.put("id", id);
+                data.put("updatedAt", System.currentTimeMillis());
+                if (!source.has("createdAt")) data.put("createdAt", System.currentTimeMillis());
+                if ("manager".equals(role) || "admin".equals(role)) {
+                    data.put("organizationId", org);
+                    data.put("ownerUid", source.optString("ownerUid", user.getUid()));
+                    if (source.has("assignedRepUid")) data.put("assignedRepUid", source.optString("assignedRepUid"));
+                } else if ("rep".equals(role) || "representative".equals(role)) {
+                    data.put("organizationId", org);
+                    data.put("assignedRepUid", user.getUid());
+                    data.put("ownerUid", source.optString("ownerUid", user.getUid()));
+                } else {
+                    data.put("ownerUid", user.getUid());
+                    data.put("customerUid", user.getUid());
+                    data.put("organizationId", "");
+                    data.put("assignedRepUid", "");
+                }
+                final String finalId = id;
+                db.collection("leads").document(id).set(data, SetOptions.merge())
+                    .addOnSuccessListener(v -> js("window.onGenSolarCloudLeadSaved && window.onGenSolarCloudLeadSaved(" + JSONObject.quote(finalId) + ")"))
+                    .addOnFailureListener(e -> leadError("Lead is saved on this phone, but cloud sync failed. Check Firestore rules."));
+            }).addOnFailureListener(e -> leadError("Your account profile could not be loaded."));
+        }
+
+        @JavascriptInterface public void deleteLead(String id) {
+            FirebaseUser user = auth == null ? null : auth.getCurrentUser();
+            if (user == null || db == null || id == null || id.isEmpty()) { leadError("Sign in before deleting a cloud lead."); return; }
+            db.collection("leads").document(id).delete()
+                .addOnSuccessListener(v -> js("window.onGenSolarCloudLeadDeleted && window.onGenSolarCloudLeadDeleted(" + JSONObject.quote(id) + ")"))
+                .addOnFailureListener(e -> leadError("Cloud deletion failed. The record may still be stored on this phone."));
+        }
+
+        private void copyLeadField(JSONObject source, Map<String,Object> target, String key) {
+            if (!source.has(key) || source.isNull(key)) return;
+            try {
+                Object value = source.get(key);
+                if ("notes".equals(key) && value instanceof JSONArray) {
+                    JSONArray array = (JSONArray)value;
+                    java.util.List<Map<String,Object>> notes = new java.util.ArrayList<>();
+                    for (int i=0;i<array.length();i++) {
+                        JSONObject note = array.optJSONObject(i);
+                        if (note != null) {
+                            Map<String,Object> n = new HashMap<>();
+                            n.put("ts", note.optLong("ts", System.currentTimeMillis()));
+                            n.put("text", note.optString("text", ""));
+                            notes.add(n);
+                        }
+                    }
+                    target.put(key, notes);
+                } else if (value instanceof String || value instanceof Number || value instanceof Boolean) target.put(key, value);
+            } catch (Exception ignored) { }
+        }
+    }
+
+    private Object jsonValue(Object value) throws Exception {
+        if (value instanceof Map) {
+            JSONObject obj = new JSONObject();
+            for (Map.Entry<?,?> e : ((Map<?,?>)value).entrySet()) obj.put(String.valueOf(e.getKey()), jsonValue(e.getValue()));
+            return obj;
+        }
+        if (value instanceof java.util.List) {
+            JSONArray arr = new JSONArray();
+            for (Object item : (java.util.List<?>)value) arr.put(jsonValue(item));
+            return arr;
+        }
+        if (value instanceof com.google.firebase.Timestamp) return ((com.google.firebase.Timestamp)value).toDate().getTime();
+        return value;
+    }
+
+    private void leadError(String message) {
+        js("window.onGenSolarCloudError && window.onGenSolarCloudError(" + JSONObject.quote(message) + ")");
     }
 
     private class PrintBridge {

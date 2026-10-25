@@ -37,3 +37,15 @@ More notes are in `gensolar-android-project/gensolar-android/README.txt` and `LE
 - Leads: add contacts, change status, add follow-up notes, share a CSV. Customers can save and share estimates.
 - Share quote and Save as PDF use the phone's share menu and print service.
 - Signed-in users stay signed in; the Login button changes to Continue.
+
+## v1.5 (merged)
+
+This version merges the earlier v1.4 app with the extra work from the reference `GenSolar-main` repository:
+
+- Engineering & Site Design workspace (new bottom tab)
+- Cloud lead sync through Firestore (`firestore.rules` — publish these rules in the Firebase console before using real data)
+- Login-required popup on the welcome feature cards
+- Explore GenSolar opens https://gensolar.in/
+- New GENSOLAR welcome logo; original welcome design kept
+- Releases page: every successful build publishes `GenSolar-Pro-v1.5.apk` under **Releases → latest**
+- Browser smoke tests: `tests/gensolar-webview-smoke.mjs`

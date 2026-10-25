@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 204" role="img" aria-labelledby="title">
+<title id="title">GenSolar</title>
+<rect width="1200" height="204" fill="none"/>
+<polygon points="92,10 260,10 194,194 0,194" fill="#FFD600"/>
+<polygon points="278,10 1192,10 1080,194 184,194" fill="#00583D"/>
+<g fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="800" letter-spacing="-5">
+<text x="286" y="145">GENS</text><text x="780" y="145">LAR</text>
+</g>
+<g transform="translate(696 100)">
+<circle r="48" fill="#FFD600"/>
+<path d="M8,-55 L-14,4 L3,4 L-8,45 L22,-7 L4,-7 L18,-55 Z" fill="#FFD600"/>
+<circle r="36" fill="#00583D"/>
+<path d="M8,-55 L-14,4 L3,4 L-8,45 L22,-7 L4,-7 L18,-55 Z" fill="#FFD600"/>
+</g>
+</svg>

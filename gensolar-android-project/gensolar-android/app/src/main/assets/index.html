@@ -95,7 +95,7 @@ html,body{margin:0;height:100%;background:#fff}
  position:fixed;inset:0;z-index:1000;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;font-family:var(--font);color:var(--ink);
  background:linear-gradient(90deg,#fcfdfd,#c6e1f1);padding-top:env(safe-area-inset-top,0px)}
 .wgate *{box-sizing:border-box}
-.wgate .wapp{--u:min(1vw,4.8px);width:100%;max-width:480px;margin:0 auto;min-height:calc(var(--u)*223);background:#fff;position:relative;overflow:hidden}
+.wgate .wapp{--u:min(1vw,4.8px);width:100%;max-width:480px;margin:0 auto;min-height:max(100svh,calc(var(--u)*223));background:#fff;position:relative;overflow:visible}
 .wgate a{color:inherit;text-decoration:none}
 .wgate p,.wgate h1{margin:0}
 .wgate button{font-family:inherit;cursor:pointer}
@@ -137,6 +137,26 @@ html,body{margin:0;height:100%;background:#fff}
 #splash p{margin:0;font-size:11px;font-weight:700;letter-spacing:.3em;color:#10261f;text-align:center}
 #splash.out{opacity:0;pointer-events:none}
 
+
+/* GenSolar mobile rendering + navigation reliability patch (v1.5) */
+.wgate .hero .logo {z-index:1}
+.wgate .hero .logo { z-index:3; }
+.wgate .hero .abs { z-index:2; }
+.wgate .hero::after { z-index:1; pointer-events:none; }
+.wgate .sheet { position:relative; z-index:4; }
+.wgate #openLogin, .wgate #explore { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+@media (max-width:360px) {
+  .wgate .hero { height:calc(var(--u)*150); }
+  .wgate .sheet { padding-left:calc(var(--u)*4.5); padding-right:calc(var(--u)*4.5); }
+  .wgate .benefits { gap:4px; }
+}
+
+
+/* Branded feature-login dialog; avoids Android's default file:// JavaScript alert */
+.feature-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(5,25,19,.55);}
+.feature-modal[hidden]{display:none!important}.feature-modal .feature-box{width:min(100%,380px);background:#fff;border-radius:22px;padding:26px 22px 18px;box-shadow:0 18px 60px rgba(0,0,0,.25);color:#123c30;}
+.feature-modal h2{font-size:22px;line-height:1.2;margin:0 0 10px;color:#075b43}.feature-modal p{font-size:15px;line-height:1.5;margin:0 0 22px;color:#344b44}.feature-modal .feature-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}.feature-modal button{min-height:44px;border-radius:12px;padding:10px 18px;font-weight:700;border:1px solid #b8d8ca;background:#eef7f2;color:#075b43}.feature-modal button.primary{background:#075b43;color:#fff;border-color:#075b43}
+@media(min-width:600px){.feature-modal{padding:32px}}
 </style></head><body>
 <div id="splash"><img src="gensolar_app_icon.png" alt="GenSolar"><p>POWERING A GREENER TOMORROW</p></div><script>setTimeout(function(){var e=document.getElementById("splash");if(e){e.classList.add("out");setTimeout(function(){e.remove()},500)}},1600)</script>
 <div id="authGate" class="wgate"><main class="wapp">
@@ -166,17 +186,17 @@ html,body{margin:0;height:100%;background:#fff}
     </div>
 
     <div class="abs cards">
-      <a class="card" href="#" onclick="exploreGuest();return false" aria-label="Solar Solutions: homes, commercial and industrial">
+      <a class="card" href="#" onclick="requestFeatureLogin('Solar Solutions');return false" aria-label="Solar Solutions: homes, commercial and industrial">
         <svg class="ic" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4L3 19h5v16h24V19h5z" fill="#fff"/><path d="M2.500 20L20 4.500 37.500 20" fill="none" stroke="#f5c800" stroke-width="4.200" stroke-linecap="round" stroke-linejoin="round"/><rect x="16" y="23" width="8" height="12" rx="1" fill="#0a6b4f"/></svg>
         <span class="t">Solar Solutions <svg viewBox="0 0 10 16" aria-hidden="true"><path d="M2 2l6 6-6 6" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span class="d">Homes, Commercial<br>&amp; Industrial</span>
       </a>
-      <a class="card" href="#" onclick="exploreGuest();return false" aria-label="Engineering: design, installation and support">
+      <a class="card" href="#" onclick="requestFeatureLogin('Engineering');return false" aria-label="Engineering: design, installation and support">
         <svg class="ic" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="14.800" fill="none" stroke="#f5c800" stroke-width="6" stroke-dasharray="5.81 5.81" transform="rotate(-11 20 20)"/><circle cx="20" cy="20" r="10" fill="none" stroke="#fff" stroke-width="6.400"/></svg>
         <span class="t">Engineering <svg viewBox="0 0 10 16" aria-hidden="true"><path d="M2 2l6 6-6 6" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span class="d">Design, Installation<br>&amp; Support</span>
       </a>
-      <a class="card" href="#" onclick="exploreGuest();return false" aria-label="Business Growth: reduce costs, increase savings">
+      <a class="card" href="#" onclick="requestFeatureLogin('Business Growth');return false" aria-label="Business Growth: reduce costs, increase savings">
         <svg class="ic" viewBox="0 0 40 40" aria-hidden="true"><g fill="#fff"><rect x="3" y="24" width="8" height="12" rx="1.200"/><rect x="15" y="18" width="8" height="18" rx="1.200"/><rect x="27" y="22" width="8" height="14" rx="1.200"/></g><path d="M5 17l9-6 6 4 12-10" fill="none" stroke="#f5c800" stroke-width="3.400" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 4h8v8" fill="none" stroke="#f5c800" stroke-width="3.400" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="t">Business Growth</span>
         <span class="d">Reduce Costs<br>Increase Savings</span>
@@ -193,10 +213,10 @@ html,body{margin:0;height:100%;background:#fff}
       </g>
     </svg>
 
-    <button class="btn primary" id="openLogin" type="button" onclick="openLogin()" style="position:relative;z-index:1">Login
+    <button class="btn primary" id="openLogin" type="button" style="position:relative;z-index:1">Login
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17M14 5l7 7-7 7" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <a class="btn ghost" id="explore" href="#" onclick="exploreWebsite();return false" style="position:relative;z-index:1">Explore GenSolar
+    <a class="btn ghost" id="explore" href="#" style="position:relative;z-index:1">Explore GenSolar
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="#0a6b4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
 
@@ -207,6 +227,7 @@ html,body{margin:0;height:100%;background:#fff}
     </div>
   </section>
 </main>
+<div id="featureLoginModal" class="feature-modal" role="dialog" aria-modal="true" aria-labelledby="featureLoginTitle" hidden><div class="feature-box"><h2 id="featureLoginTitle">Login required</h2><p id="featureLoginMessage">Sign in with your mobile number to continue.</p><div class="feature-actions"><button type="button" id="featureCancel">Cancel</button><button type="button" class="primary" id="featureLoginNow">Login</button></div></div></div>
 <div id="loginForm" class="wl hide-auth"><div class="scrim" onclick="backToRoles()"></div>
 <div class="signin" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
  <h2 id="loginTitle">Welcome back</h2>
@@ -315,7 +336,7 @@ html,body{margin:0;height:100%;background:#fff}
     <section id="view-leads" class="page" hidden>
       <h1 id="leadsTitle">Leads</h1>
       <p class="lede" id="leadsLede"></p>
-      <p class="banner">Saved on this phone only. Entries are not shared between phones yet.</p>
+      <p class="banner" id="leadStorageNotice">Your records stay on this phone. Sign in on Android to sync leads with your company cloud database.</p>
       <div class="stats" id="leadStats"></div>
       <div class="panel" id="addBox">
         <h2>Add a contact</h2>
@@ -338,10 +359,79 @@ html,body{margin:0;height:100%;background:#fff}
         <small style="color:var(--muted)">GenSolar Pro 1.4</small>
       </div>
     </section>
+
+    <section id="view-engineering" class="page" hidden>
+      <h1>Engineering &amp; site design</h1>
+      <p class="lede">Use this workspace for preliminary panel sizing, roof fit, orientation, inverter sizing and site-survey readiness. Enter solar-resource figures from a verified assessment; this page does not fetch live satellite data.</p>
+      <div class="panel" style="margin-top:14px">
+        <h2>Site and system inputs</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px">
+          <div class="field"><label for="engSite">Site / customer</label><input id="engSite" type="text" placeholder="Plant or customer name"></div>
+          <div class="field"><label for="engState">State</label><select id="engState"><option>Telangana</option><option>Andhra Pradesh</option><option>Odisha</option><option>Chhattisgarh</option><option>Other</option></select></div>
+          <div class="field"><label for="engLat">Latitude</label><input id="engLat" type="number" step="any" placeholder="e.g. 17.385"></div>
+          <div class="field"><label for="engLon">Longitude</label><input id="engLon" type="number" step="any" placeholder="e.g. 78.4867"></div>
+          <div class="field"><label for="engCapacity">Target DC capacity (kWp)</label><input id="engCapacity" type="number" min="0" step="0.01" value="21.26"></div>
+          <div class="field"><label for="engPanelTech">Panel technology</label><select id="engPanelTech"><option>TOPCon</option><option>Mono PERC</option><option>HJT</option><option>Bifacial TOPCon</option><option>Other / confirm datasheet</option></select></div>
+          <div class="field"><label for="engPanelW">Panel rating (Wp)</label><select id="engPanelW"><option>400</option><option>440</option><option>450</option><option>500</option><option selected>550</option><option>580</option><option>600</option><option>610</option><option>650</option></select></div>
+          <div class="field"><label for="engRoof">Usable roof area (sq ft)</label><input id="engRoof" type="number" min="0" step="1" placeholder="Surveyed usable area"></div>
+          <div class="field"><label for="engRoofPerKw">Planning area per kW (sq ft)</label><input id="engRoofPerKw" type="number" min="1" step="1" value="80"></div>
+          <div class="field"><label for="engAzimuth">Array azimuth (°; 180 = south)</label><input id="engAzimuth" type="number" min="0" max="360" step="1" value="180"></div>
+          <div class="field"><label for="engTilt">Array tilt (° from horizontal)</label><input id="engTilt" type="number" min="0" max="90" step="1" value="15"></div>
+          <div class="field"><label for="engInverter">Inverter AC capacity (kW)</label><input id="engInverter" type="number" min="0" step="0.1" placeholder="Enter planned AC capacity"></div>
+          <div class="field"><label for="engMount">Mounting structure</label><select id="engMount"><option>RCC rooftop</option><option>Metal sheet rooftop</option><option>Ground mounted</option><option>Carport / canopy</option><option>Other / site survey</option></select></div>
+        </div>
+        <button class="btn primary" id="engCalc" type="button">Calculate preliminary design</button>
+        <div id="engResults" class="stats" style="margin-top:12px" aria-live="polite"></div>
+        <p class="meta" style="margin-top:10px">Planning output only. Final module layout, wind load, roof strength, setbacks, DC/AC sizing, string configuration, cables and protections must be checked by the project engineer against datasheets and site conditions.</p>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h2>Solar resource and generation assessment</h2>
+        <p class="lede">Enter sourced values from PVGIS, a solar-resource report, site survey or a validated simulation. Keep the report date and source with the proposal.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px">
+          <div class="field"><label for="engGhi">GHI (kWh/m²/day)</label><input id="engGhi" type="number" min="0" step="0.01" placeholder="Source value"></div>
+          <div class="field"><label for="engDni">DNI (kWh/m²/day)</label><input id="engDni" type="number" min="0" step="0.01" placeholder="Source value"></div>
+          <div class="field"><label for="engDhi">DHI (kWh/m²/day)</label><input id="engDhi" type="number" min="0" step="0.01" placeholder="Source value"></div>
+          <div class="field"><label for="engGti">GTI (kWh/m²/day)</label><input id="engGti" type="number" min="0" step="0.01" placeholder="Plane-of-array value"></div>
+          <div class="field"><label for="engAep">Annual yield (kWh/kWp/year)</label><input id="engAep" type="number" min="0" step="1" placeholder="From validated simulation"></div>
+          <div class="field"><label for="engCuf">CUF (%)</label><input id="engCuf" type="number" min="0" max="100" step="0.1" placeholder="Source or calculated"></div>
+          <div class="field"><label for="engSource">Resource source / report date</label><input id="engSource" type="text" placeholder="Source and date"></div>
+        </div>
+        <div id="engEnergyResult" class="stat" style="margin-top:10px"></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h2>Pre-sales document checklist</h2>
+        <p class="lede">Mark documents received. Checklist status is saved on this device.</p>
+        <div id="engDocs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:10px">
+          <label><input type="checkbox" data-eng-doc="bill"> Latest electricity bill</label>
+          <label><input type="checkbox" data-eng-doc="sanction"> Sanctioned load / connection details</label>
+          <label><input type="checkbox" data-eng-doc="roof"> Roof photos and usable area</label>
+          <label><input type="checkbox" data-eng-doc="structure"> Structural safety / roof-load confirmation</label>
+          <label><input type="checkbox" data-eng-doc="layout"> Site layout, obstructions and shadow notes</label>
+          <label><input type="checkbox" data-eng-doc="meter"> Meter, DISCOM and net-metering requirements</label>
+          <label><input type="checkbox" data-eng-doc="customer"> Customer / company contact and billing details</label>
+          <label><input type="checkbox" data-eng-doc="survey"> Site-survey measurements and photos</label>
+        </div>
+        <div id="engDocStatus" class="meta" style="margin-top:10px"></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h2>Project delivery stages</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-top:10px">
+          <div class="stat"><b>1</b><span>Lead qualification</span></div>
+          <div class="stat"><b>2</b><span>Bill and tariff analysis</span></div>
+          <div class="stat"><b>3</b><span>Site survey and structure</span></div>
+          <div class="stat"><b>4</b><span>Engineering and proposal</span></div>
+          <div class="stat"><b>5</b><span>Customer approval and order</span></div>
+          <div class="stat"><b>6</b><span>DISCOM / net-metering process</span></div>
+          <div class="stat"><b>7</b><span>Installation and safety checks</span></div>
+          <div class="stat"><b>8</b><span>Commissioning and handover</span></div>
+        </div>
+      </div>
+    </section>
   </main>
   <nav class="tabbar" aria-label="Main">
     <button type="button" data-tab="est"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Estimator</button>
     <button type="button" data-tab="leads" id="tabLeads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span id="tabLeadsLbl">Leads</span></button>
+    <button type="button" data-tab="engineering" aria-label="Engineering and site design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8"/></svg>Engineering</button>
     <button type="button" data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</button>
   </nav>
 </div>
@@ -732,6 +822,20 @@ function model(p){
   /* ---------- leads ---------- */
   function leads(){return lsGet('gs_leads_v2',[])}
   function saveLeads(a){return lsSet('gs_leads_v2',a)}
+  function cloudSaveLead(l){try{if(window.GenSolarLeads&&session&&session.mode==='user')window.GenSolarLeads.saveLead(JSON.stringify(l))}catch(e){toast('Cloud sync could not start. Your phone copy is unchanged.')}}
+  function cloudDeleteLead(id){try{if(window.GenSolarLeads&&session&&session.mode==='user')window.GenSolarLeads.deleteLead(String(id))}catch(e){toast('Cloud delete could not start.')}}
+  function cloudLoadLeads(){try{if(window.GenSolarLeads&&session&&session.mode==='user')window.GenSolarLeads.loadLeads()}catch(e){toast('Cloud leads could not load. Your phone records remain available.')}}
+  window.onGenSolarCloudLeads=function(rows){
+    if(!Array.isArray(rows))return;
+    var local=leads(),merged=[],seen={};
+    rows.forEach(function(l){if(!l||!l.id)return;merged.push(l);seen[l.id]=true});
+    local.forEach(function(l){if(l&&l.id&&!seen[l.id])merged.push(l)});
+    merged.sort(function(a,b){return Number(b.ts||b.createdAt||0)-Number(a.ts||a.createdAt||0)});
+    saveLeads(merged);renderLeads();
+  };
+  window.onGenSolarCloudLeadSaved=function(){};
+  window.onGenSolarCloudLeadDeleted=function(){};
+  window.onGenSolarCloudError=function(message){toast(message||'Cloud sync failed. Your phone records remain available.')};
   function myLeads(){
     var all=leads();
     if(isCompany())return all;
@@ -741,7 +845,7 @@ function model(p){
   function addLead(l){
     var a=leads();l.id='L'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
     l.ts=Date.now();l.status=l.status||'New';l.notes=l.notes||[];l.owner=session&&(session.phone||session.uid);
-    a.unshift(l);return saveLeads(a)?l:null;
+    a.unshift(l);if(!saveLeads(a))return null;cloudSaveLead(l);return l;
   }
   function renderLeads(){
     var comp=isCompany();
@@ -772,17 +876,17 @@ function model(p){
   $('leadList').addEventListener('change',function(e){
     if(e.target.getAttribute('data-act')!=='status')return;
     var id=e.target.closest('.ld').getAttribute('data-id'),a=leads();
-    a.forEach(function(l){if(l.id===id)l.status=e.target.value});saveLeads(a);renderLeads();toast('Status updated');
+    a.forEach(function(l){if(l.id===id){l.status=e.target.value;cloudSaveLead(l)}});saveLeads(a);renderLeads();toast('Status updated');
   });
   $('leadList').addEventListener('click',function(e){
     var b=e.target.closest('[data-act]');if(!b)return;
     var box=b.closest('.ld'),id=box.getAttribute('data-id'),a=leads(),act=b.getAttribute('data-act');
     if(act==='del'){
       if(b.getAttribute('data-sure')!=='1'){b.setAttribute('data-sure','1');b.textContent='Tap again to delete';return}
-      saveLeads(a.filter(function(l){return l.id!==id}));renderLeads();toast('Deleted');
+      saveLeads(a.filter(function(l){return l.id!==id}));cloudDeleteLead(id);renderLeads();toast('Deleted');
     }else if(act==='note'){
       var inp=box.querySelector('[data-note]'),t=inp.value.trim();if(!t){toast('Type a note first');return}
-      a.forEach(function(l){if(l.id===id)l.notes.push({ts:Date.now(),text:t})});saveLeads(a);renderLeads();toast('Note added');
+      a.forEach(function(l){if(l.id===id){l.notes.push({ts:Date.now(),text:t});cloudSaveLead(l)}});saveLeads(a);renderLeads();toast('Note added');
     }else if(act==='share'){
       var l=a.filter(function(x){return x.id===id})[0];if(l)shareText(l.quote)
     }
@@ -845,24 +949,71 @@ function model(p){
     $('tabLeadsLbl').textContent=comp?'Leads':'My estimates';
     paintAvatar();
   }
+  /* ---------- engineering / site design workspace ---------- */
+  var ENG_FIELDS=['engSite','engState','engLat','engLon','engCapacity','engPanelTech','engPanelW','engRoof','engRoofPerKw','engAzimuth','engTilt','engInverter','engMount','engGhi','engDni','engDhi','engGti','engAep','engCuf','engSource'];
+  function engLoad(){
+    var saved=lsGet('gs_engineering_v1',{}),docs=lsGet('gs_engineering_docs_v1',{});
+    ENG_FIELDS.forEach(function(id){var el=$(id);if(el&&saved[id]!=null)el.value=saved[id]});
+    document.querySelectorAll('[data-eng-doc]').forEach(function(el){el.checked=!!docs[el.getAttribute('data-eng-doc')];});
+    renderEngineering();
+  }
+  function engSave(){
+    var saved={};ENG_FIELDS.forEach(function(id){var el=$(id);if(el)saved[id]=el.value});
+    lsSet('gs_engineering_v1',saved);
+    var docs={};document.querySelectorAll('[data-eng-doc]').forEach(function(el){docs[el.getAttribute('data-eng-doc')]=el.checked});
+    lsSet('gs_engineering_docs_v1',docs);
+  }
+  /* Keep formatting local to this script scope; the estimator formatter lives in a separate IIFE. */
+  function num(v,d){var n=Number(v);return (isFinite(n)?n:0).toLocaleString('en-IN',{maximumFractionDigits:d==null?0:d})}
+  function engVal(id){var el=$(id),v=el?parseFloat(el.value):0;return isFinite(v)?v:0}
+  function engStat(label,value,sub){return '<div class="stat"><span>'+label+'</span><b>'+value+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'}
+  function renderEngineering(){
+    if(!$('engResults'))return;
+    var kw=engVal('engCapacity'),wp=engVal('engPanelW'),roof=engVal('engRoof'),areaKw=engVal('engRoofPerKw'),inv=engVal('engInverter'),aep=engVal('engAep'),cuf=engVal('engCuf');
+    var count=kw>0&&wp>0?Math.ceil(kw*1000/wp):0,area=kw>0&&areaKw>0?kw*areaKw:0,roofCap=roof>0&&areaKw>0?roof/areaKw:null,ratio=kw>0&&inv>0?kw/inv:null;
+    var items=[];
+    items.push(engStat('DC capacity',kw>0?num(kw,2)+' kWp':'—','Target array size'));
+    items.push(engStat('Module count',count?num(count)+' panels':'—',wp>0?num(wp)+' Wp each':'Select module rating'));
+    items.push(engStat('Planning roof area',area>0?num(area)+' sq ft':'—',areaKw>0?num(areaKw)+' sq ft per kW':'Set planning area'));
+    items.push(engStat('Roof capacity',roofCap!=null?num(roofCap,2)+' kWp':'Not entered',roofCap!=null&&kw>roofCap?'Target exceeds entered roof capacity':'Based on planning-area assumption'));
+    items.push(engStat('DC / AC ratio',ratio!=null?ratio.toFixed(2)+' : 1':'Enter inverter capacity',ratio!=null&&ratio>1.5?'Engineer to verify sizing':'Preliminary ratio only'));
+    $('engResults').innerHTML=items.join('');
+    var annual=(kw>0&&aep>0)?kw*aep:null;
+    var derived=annual!=null?annual/(kw*8760)*100:null;
+    var shownCuf=cuf>0?cuf:derived;
+    var energyBits=[];
+    energyBits.push(annual!=null?num(annual)+' kWh/year estimated from entered yield':'Enter annual yield to calculate generation');
+    if(shownCuf!=null&&isFinite(shownCuf))energyBits.push('CUF '+shownCuf.toFixed(1)+'%'+(cuf>0?' (entered)':' (calculated from annual yield)'));
+    if(engVal('engGhi')>0)energyBits.push('GHI '+num(engVal('engGhi'),2)+' kWh/m²/day');
+    if(engVal('engGti')>0)energyBits.push('GTI '+num(engVal('engGti'),2)+' kWh/m²/day');
+    if($('engSource').value.trim())energyBits.push('Source: '+esc($('engSource').value.trim()));
+    $('engEnergyResult').innerHTML='<b>Resource and energy summary</b><div style="margin-top:6px">'+energyBits.map(esc).join(' · ')+'</div>';
+    var docs=document.querySelectorAll('[data-eng-doc]'),done=0;docs.forEach(function(d){if(d.checked)done++});
+    $('engDocStatus').textContent=done+' of '+docs.length+' documents marked received.';
+  }
+  ENG_FIELDS.forEach(function(id){var el=$(id);if(el){el.addEventListener('input',function(){engSave();renderEngineering()});el.addEventListener('change',function(){engSave();renderEngineering()})}});
+  document.querySelectorAll('[data-eng-doc]').forEach(function(el){el.addEventListener('change',function(){engSave();renderEngineering()})});
+  $('engCalc').addEventListener('click',function(){engSave();renderEngineering();toast('Preliminary design recalculated. Confirm with engineering before quoting.')});
   function showView(v){
     if(v==='leads'&&role()==='guest')v='est';
     activeTab=v;
-    ['est','leads','profile'].forEach(function(x){$('view-'+x).hidden=(x!==v)});
+    ['est','leads','profile','engineering'].forEach(function(x){$('view-'+x).hidden=(x!==v)});
     document.querySelectorAll('.tabbar button').forEach(function(b){if(b.getAttribute('data-tab')===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
     paintShell();
     if(v==='leads')renderLeads();
     if(v==='profile')paintProfile();
+    if(v==='engineering')renderEngineering();
     $('amain').scrollTop=0;
   }
   function route(){
     var h=location.hash.replace('#','');
-    var inApp=(h==='est'||h==='leads'||h==='profile')&&session;
+    var inApp=(h==='est'||h==='leads'||h==='profile'||h==='engineering')&&session;
     $('app').hidden=!inApp;
     $('authGate').classList.toggle('hide-auth',!!inApp);
     if(inApp){showSheet(false);showView(h)}
     else{showSheet(h==='login');paintWelcome()}
   }
+  engLoad();
   window.addEventListener('hashchange',route);
   window.addEventListener('popstate',route);
   function goTab(v){history.replaceState(null,'','#'+v);route()}
@@ -874,6 +1025,25 @@ function model(p){
   });
 
   /* ---------- welcome + login (called from the welcome page) ---------- */
+  window.requestFeatureLogin=function(feature){
+    if(session&&session.mode==='user'){
+      if(role()==='guest'){showFeatureLogin(feature);return;}
+      toast(feature+' selected. Your account permissions will be checked.');
+      location.hash=feature==='Engineering'?'#engineering':'#est';return;
+    }
+    showFeatureLogin(feature);
+  };
+  function showFeatureLogin(feature){
+    var modal=$('featureLoginModal');if(!modal)return;
+    $('featureLoginTitle').textContent=feature+' requires login';
+    $('featureLoginMessage').textContent='Sign in with your mobile number to access '+feature+'.';
+    modal.hidden=false;modal.dataset.feature=feature;
+  }
+  function closeFeatureLogin(){var modal=$('featureLoginModal');if(modal)modal.hidden=true;}
+  $('featureCancel').addEventListener('click',closeFeatureLogin);
+  $('featureLoginNow').addEventListener('click',function(){closeFeatureLogin();loginPending=true;location.hash='#login';showSheet(true)});
+  $('featureLoginModal').addEventListener('click',function(e){if(e.target===$('featureLoginModal'))closeFeatureLogin()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeFeatureLogin()});
   window.openLogin=function(){
     if(session&&session.mode==='user'){location.hash='#est';return}
     loginPending=true;location.hash='#login';
@@ -903,6 +1073,7 @@ function model(p){
   window.onGenSolarAuthError=function(m){$('sendOtpButton').disabled=false;authStatus(m||'Authentication failed.',true)};
   window.onGenSolarAuthSuccess=function(uid,r,phone){
     session={mode:'user',uid:uid,role:normRole(r),phone:last10(phone)};
+    cloudLoadLeads();
     if(location.hash==='#login'){history.replaceState(null,'','#est');route();toast('Signed in')}
     else paintWelcome();
   };
@@ -913,6 +1084,11 @@ function model(p){
   }
   window.onGenSolarLastCrash=function(msg){var d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(3,40,30,.7);display:flex;align-items:center;justify-content:center;padding:18px';d.innerHTML='<div style="background:#fff;border-radius:16px;max-width:460px;width:100%;max-height:85%;overflow:auto;padding:18px;font:14px system-ui,sans-serif;color:#10261f"><b style="font-size:16px">The app closed unexpectedly last time</b><p style="margin:8px 0">Please send a screenshot of this to support so it can be fixed.</p><pre style="white-space:pre-wrap;word-break:break-word;font-size:11px;background:#f4faf7;border-radius:8px;padding:10px"></pre><button style="width:100%;height:44px;border:0;border-radius:10px;background:#066a51;color:#fff;font-weight:700">Close</button></div>';d.querySelector('pre').textContent=String(msg);d.querySelector('button').onclick=function(){d.remove()};document.body.appendChild(d)};
 
+  /* Bind welcome controls explicitly for WebView and browser touch events. */
+  var welcomeLoginButton=$('openLogin');
+  if(welcomeLoginButton)welcomeLoginButton.addEventListener('click',function(e){e.preventDefault();window.openLogin();});
+  var welcomeExploreButton=$('explore');
+  if(welcomeExploreButton)welcomeExploreButton.addEventListener('click',function(e){e.preventDefault();window.exploreWebsite();});
   paintAvatar();route();
 })();
 </script>

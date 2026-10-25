@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function hasProfile() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    function myRole() {
+      return hasProfile() ? me().role : '';
+    }
+    function myOrg() {
+      return hasProfile() && me().organizationId is string ? me().organizationId : '';
+    }
+
+    function isManager() {
+      return myRole() == 'manager' || myRole() == 'admin';
+    }
+    function isRep() {
+      return myRole() == 'rep' || myRole() == 'representative';
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow read: if hasProfile()
+        && isManager()
+        && resource.data.organizationId == myOrg();
+      // New accounts can create only their own customer profile.
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.role == 'customer';
+      // Users may edit their own basic profile, never their role or organization.
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.organizationId == resource.data.organizationId;
+      allow delete: if false;
+    }
+
+    match /leads/{leadId} {
+      function sameOrg() {
+        return hasProfile()
+          && isManager()
+          && resource.data.organizationId == myOrg();
+      }
+      allow read: if signedIn() && (
+        resource.data.ownerUid == request.auth.uid
+        || resource.data.assignedRepUid == request.auth.uid
+        || sameOrg()
+      );
+      allow create: if hasProfile() && (
+        (myRole() == 'customer'
+          && request.resource.data.ownerUid == request.auth.uid)
+        || (isRep()
+          && request.resource.data.assignedRepUid == request.auth.uid
+          && request.resource.data.organizationId == myOrg())
+        || (isManager()
+          && request.resource.data.organizationId == myOrg())
+      );
+      allow update: if hasProfile() && (
+        (isManager()
+          && resource.data.organizationId == myOrg()
+          && request.resource.data.organizationId == resource.data.organizationId)
+        || (isRep()
+          && resource.data.assignedRepUid == request.auth.uid
+          && request.resource.data.assignedRepUid == resource.data.assignedRepUid
+          && request.resource.data.organizationId == resource.data.organizationId
+          && request.resource.data.ownerUid == resource.data.ownerUid)
+        || (myRole() == 'customer'
+          && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.assignedRepUid == resource.data.assignedRepUid
+          && request.resource.data.organizationId == resource.data.organizationId
+          && request.resource.data.status == resource.data.status)
+      );
+      allow delete: if hasProfile() && (
+        (isManager() && resource.data.organizationId == myOrg())
+        || (isRep() && resource.data.assignedRepUid == request.auth.uid)
+        || (myRole() == 'customer' && resource.data.ownerUid == request.auth.uid)
+      );
+    }
+
+    // Other collections are denied until their data model and access rules are implemented.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
