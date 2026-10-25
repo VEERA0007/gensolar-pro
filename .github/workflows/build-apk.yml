@@ -5,14 +5,19 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
     name: Build Debug APK
     runs-on: ubuntu-latest
+    env:
+      PROJECT_DIR: gensolar-android-project/gensolar-android
 
     steps:
       - name: Checkout source
@@ -28,21 +33,41 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Verify Android project
-        working-directory: gensolar-android-project/gensolar-android
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           test -f settings.gradle
           test -f build.gradle
           test -f app/build.gradle
+          test -f app/google-services.json
+          test -f app/debug.keystore
+          test -f app/src/main/assets/index.html
           echo "Android project files found."
 
       - name: Build debug APK
-        working-directory: gensolar-android-project/gensolar-android
-        run: gradle assembleDebug
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: gradle assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Name the APK
+        run: |
+          VERSION=$(grep -o "versionName '[^']*'" ${{ env.PROJECT_DIR }}/app/build.gradle | cut -d"'" -f2)
+          cp ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk "GenSolar-Pro-v${VERSION}.apk"
+          echo "APK_FILE=GenSolar-Pro-v${VERSION}.apk" >> "$GITHUB_ENV"
+          echo "APK_VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Upload APK as build artifact
         uses: actions/upload-artifact@v4
         with:
           name: GenSolar-Pro-debug-APK
-          path: gensolar-android-project/gensolar-android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.APK_FILE }}
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish APK to the Releases page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --cleanup-tag --yes || true
+          gh release create latest "${APK_FILE}" \
+            --title "GenSolar Pro v${APK_VERSION} (latest build)" \
+            --notes "Debug APK built from commit ${GITHUB_SHA::7}. Download the .apk file below on your phone and open it to install." \
+            --target "${GITHUB_SHA}"
