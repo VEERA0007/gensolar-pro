@@ -28,4 +28,6 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:34.3.0')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
+    // Firebase Auth 24.x uses ContextCompat.registerReceiver; ensure this API is packaged.
+    implementation 'androidx.core:core:1.15.0'
 }
