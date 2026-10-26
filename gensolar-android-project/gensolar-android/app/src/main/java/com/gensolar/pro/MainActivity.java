@@ -172,6 +172,16 @@ public class MainActivity extends Activity {
             });
         }
         @JavascriptInterface public void signOut() { if (auth != null) auth.signOut(); }
+        @JavascriptInterface public void saveDesignation(String key) {
+            FirebaseUser user = auth == null ? null : auth.getCurrentUser();
+            if (user == null || db == null || key == null) return;
+            if (!key.matches("admin|sales_head|regional_manager|sales_manager|sales_rep|channel_partner|customer")) return;
+            Map<String,Object> data = new HashMap<>();
+            data.put("requestedRole", key);
+            data.put("requestedAt", System.currentTimeMillis());
+            db.collection("users").document(user.getUid()).set(data, SetOptions.merge())
+                .addOnFailureListener(e -> Log.e("GenSolar", "Could not save requested role", e));
+        }
     }
 
     private void signIn(PhoneAuthCredential credential) {
@@ -185,6 +195,12 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void authSuccess(FirebaseUser user, String role, String requested) {
+        String phone = user.getPhoneNumber() == null ? "" : user.getPhoneNumber();
+        js("window.onGenSolarAuthSuccess && window.onGenSolarAuthSuccess(" + JSONObject.quote(user.getUid()) + ","
+            + JSONObject.quote(role) + "," + JSONObject.quote(phone) + "," + JSONObject.quote(requested == null ? "" : requested) + ")");
+    }
+
     private void ensureCustomerProfile(FirebaseUser user) {
         if (db == null) { jsError("Firestore is not initialized."); return; }
         DocumentReference ref = db.collection("users").document(user.getUid());
@@ -192,21 +208,18 @@ public class MainActivity extends Activity {
             if (doc.exists()) {
                 String role = doc.getString("role");
                 if (role == null || role.isEmpty()) role = "customer";
-                String phone = user.getPhoneNumber() == null ? "" : user.getPhoneNumber();
-                js("window.onGenSolarAuthSuccess && window.onGenSolarAuthSuccess('" + user.getUid() + "','" + role + "','" + phone + "')");
+                authSuccess(user, role, doc.getString("requestedRole"));
             } else {
                 Map<String,Object> profile = new HashMap<>();
                 profile.put("uid", user.getUid());
                 profile.put("phone", user.getPhoneNumber() == null ? "" : user.getPhoneNumber());
                 profile.put("role", "customer");
                 profile.put("createdAt", System.currentTimeMillis());
-                ref.set(profile, SetOptions.merge()).addOnSuccessListener(v ->
-                    js("window.onGenSolarAuthSuccess && window.onGenSolarAuthSuccess('" + user.getUid() + "','customer','" + (user.getPhoneNumber() == null ? "" : user.getPhoneNumber()) + "')")
-                ).addOnFailureListener(e -> jsError("Signed in, but profile setup failed: " + e.getMessage()));
+                ref.set(profile, SetOptions.merge()).addOnSuccessListener(v -> authSuccess(user, "customer", ""))
+                    .addOnFailureListener(e -> jsError("Signed in, but profile setup failed: " + e.getMessage()));
             }
         }).addOnFailureListener(e -> jsError("Could not load account role. Check Firestore rules: " + e.getMessage()));
     }
-
 
     private class LeadBridge {
         @JavascriptInterface public void loadLeads() {
@@ -339,6 +352,10 @@ public class MainActivity extends Activity {
     }
 
     private class PrintBridge {
+        @JavascriptInterface public String appVersion() {
+            try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionName; }
+            catch (Exception e) { return ""; }
+        }
         @JavascriptInterface public void shareText(String text) {
             runOnUiThread(() -> {
                 try {

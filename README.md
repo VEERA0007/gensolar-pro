@@ -49,3 +49,10 @@ This version merges the earlier v1.4 app with the extra work from the reference 
 - New GENSOLAR welcome logo; original welcome design kept
 - Releases page: every successful build publishes `GenSolar-Pro-v1.5.apk` under **Releases → latest**
 - Browser smoke tests: `tests/gensolar-webview-smoke.mjs`
+
+## v1.7
+
+- UI redesigned to the new mockup: welcome screen, "Login to GenSolar" page and "Select Your Role" page.
+- Role selection stores a *requested* role (`requestedRole` in `users/{uid}`). Access stays Customer until an administrator sets `role` (and `organizationId`) in the Firebase console.
+- Built-in update check: the app reads the latest GitHub Release and shows an "Update available" bar with a download button. To ship an update: bump `versionName`/`versionCode` in `app/build.gradle` and push to `main`; the workflow publishes `GenSolar-Pro-vX.Y.apk`, and installed apps offer it on next launch. Updates install over the old app because the signing key is fixed.
+- Not included yet: Google sign-in and email / Employee ID login (need Firebase Google provider + a backend for employee IDs).

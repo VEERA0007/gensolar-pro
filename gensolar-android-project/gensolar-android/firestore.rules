@@ -38,7 +38,8 @@ service cloud.firestore {
       allow update: if signedIn()
         && request.auth.uid == userId
         && request.resource.data.role == resource.data.role
-        && request.resource.data.organizationId == resource.data.organizationId;
+        && request.resource.data.get('organizationId', '') == resource.data.get('organizationId', '')
+        && request.resource.data.get('requestedRole', 'customer') in ['admin','sales_head','regional_manager','sales_manager','sales_rep','channel_partner','customer'];
       allow delete: if false;
     }
 

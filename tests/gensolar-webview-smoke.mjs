@@ -49,9 +49,9 @@ try {
   check((await page.locator('#authMessage').innerText()).includes('valid 10-digit'),
     'OTP form validates an empty/invalid mobile number instead of silently doing nothing');
 
-  await page.locator('.scrim').click({ position: { x: 8, y: 8 } });
+  await page.locator('.lback').first().click();
   await page.waitForTimeout(150);
-  await page.locator('.cards .card').first().click();
+  await page.locator('.feats .feat').first().click();
   await page.waitForTimeout(100);
   check(await page.locator('#featureLoginModal').isVisible(), 'Solar Solutions shows a branded login-required popup');
   check((await page.locator('#featureLoginMessage').innerText()).includes('Solar Solutions'), 'Feature popup names the selected service');

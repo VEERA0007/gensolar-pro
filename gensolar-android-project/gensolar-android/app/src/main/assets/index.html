@@ -105,7 +105,7 @@ html,body{margin:0;height:100%;background:#fff}
 .wgate :focus-visible{outline:3px solid #f5c800;outline-offset:2px}
 .wl{position:fixed;inset:0;z-index:1100;display:flex;align-items:flex-end;justify-content:center;font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif}
 .wl .scrim{position:absolute;inset:0;background:rgba(3,40,30,.55)}
-.wl .signin{position:relative;width:100%;max-width:480px;background:#fff;border-radius:24px 24px 0 0;padding:22px 22px max(22px,env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px rgba(0,30,20,.25);max-height:100%;overflow-y:auto}
+.wl .signin{flex:none;position:relative;width:100%;max-width:480px;background:#fff;border-radius:24px 24px 0 0;padding:22px 22px max(22px,env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px rgba(0,30,20,.25);max-height:100%;overflow-y:auto}
 .wl h2{margin:0;font-size:22px;font-weight:800;color:#0b4a37}
 .wl .lead{font-size:14px;color:#4d6a5f;margin:4px 0 16px;line-height:1.45}
 .wl .f{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
@@ -157,6 +157,41 @@ html,body{margin:0;height:100%;background:#fff}
 .feature-modal[hidden]{display:none!important}.feature-modal .feature-box{width:min(100%,380px);background:#fff;border-radius:22px;padding:26px 22px 18px;box-shadow:0 18px 60px rgba(0,0,0,.25);color:#123c30;}
 .feature-modal h2{font-size:22px;line-height:1.2;margin:0 0 10px;color:#075b43}.feature-modal p{font-size:15px;line-height:1.5;margin:0 0 22px;color:#344b44}.feature-modal .feature-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}.feature-modal button{min-height:44px;border-radius:12px;padding:10px 18px;font-weight:700;border:1px solid #b8d8ca;background:#eef7f2;color:#075b43}.feature-modal button.primary{background:#075b43;color:#fff;border-color:#075b43}
 @media(min-width:600px){.feature-modal{padding:32px}}
+
+/* ===== v1.7 UI (mockup) ===== */
+.wgate .cards,.wgate .eyebrow,.wgate .sub{display:none!important}
+.wgate .tagline{top:calc(var(--u)*31.5);font-weight:600;letter-spacing:.22em;font-size:calc(var(--u)*2.2)}
+.wgate h1.abs{left:0;right:0;top:calc(var(--u)*43);text-align:center;font-size:calc(var(--u)*8.4);line-height:calc(var(--u)*9);text-shadow:0 0 calc(var(--u)*3) rgba(255,255,255,.7)}
+.wgate .feats{left:calc(var(--u)*5);width:calc(var(--u)*90);top:calc(var(--u)*72);grid-template-columns:repeat(3,1fr);cursor:pointer}
+.wgate .feat{cursor:pointer;font-weight:600;font-size:calc(var(--u)*2.7)}
+.wgate .feat svg{width:calc(var(--u)*6.4);height:calc(var(--u)*6.4)}
+.wgate .btn.primary,.wgate .btn.primary:active{background:#064e3b}
+.wl{overflow-y:auto;display:flex;flex-direction:column;background:#f6faf7;align-items:stretch;justify-content:flex-start}
+.wl.hide-auth{display:none!important}.wl .scrim{display:none}
+.wl .lbg{position:absolute;left:0;right:0;top:0;height:min(62vw,300px);background:linear-gradient(180deg,rgba(255,255,255,0) 40%,#f6faf7 100%),url(hero-bg.jpg) center 35%/cover no-repeat}
+.wl .lback{position:absolute;left:12px;top:max(12px,env(safe-area-inset-top,0px));z-index:3;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.85);color:#0b4a37;display:flex;align-items:center;justify-content:center}
+.wl .llogo{position:relative;z-index:2;display:block;width:min(78vw,340px);height:auto;flex:none;align-self:center;margin:max(26px,calc(env(safe-area-inset-top,0px) + 20px)) auto 0}
+.wl .signin{position:relative;z-index:2;width:auto;max-width:440px;margin:min(24vw,110px) 16px 0;border-radius:22px;padding:22px 20px 16px;box-shadow:0 10px 36px rgba(0,50,30,.16);max-height:none;overflow:visible}
+@media(min-width:480px){.wl .signin{margin-left:auto;margin-right:auto}}
+.wl .signin h2{text-align:center}.wl .signin .lead{text-align:center}
+.wl .ph span{gap:4px}
+.wl .go{display:flex;align-items:center;justify-content:center;gap:8px;background:#064e3b}
+.wl .qa{flex:none;width:100%;margin-bottom:26px;position:relative;z-index:2;max-width:440px;margin:18px auto 0;padding:0 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;font-size:12px;line-height:1.3;color:#10261f}
+.wl .qa i{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#dff0e5;margin:0 auto 6px}.wl .qa i svg{width:22px;height:22px}
+.wl .lfoot{position:relative;z-index:2;margin-top:auto;flex:none;padding:46px 16px max(22px,env(safe-area-inset-bottom,0px));text-align:center;font-size:14px;color:#0b4a37;background:linear-gradient(180deg,rgba(176,220,160,0),#cfe8c3 70%,#b4d9a4)}
+.wl.rl .rwrap{width:100%;flex:none;position:relative;z-index:2;max-width:440px;margin:max(56px,calc(env(safe-area-inset-top,0px) + 50px)) auto 0;padding:0 16px max(24px,env(safe-area-inset-bottom,0px))}
+.wl.rl h2{text-align:center;font-size:24px;margin-bottom:4px}
+.wl.rl .lbg{height:100%;opacity:.35;background:url(hero-bg.jpg) center bottom/cover no-repeat}
+.rbtn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#fff;border:1.5px solid transparent;border-radius:14px;padding:12px 14px;margin:0 0 8px;box-shadow:0 2px 8px rgba(0,50,30,.08);font-family:inherit;color:#10261f;cursor:pointer}
+.rbtn[aria-checked="true"]{background:#e3f5d9;border-color:#7fcf6a}
+.rbtn .ri{flex:none;width:40px;height:40px;border-radius:10px;background:#e3f1e9;color:#064e3b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.rbtn b{display:block;font-size:15px}.rbtn small{display:block;font-size:12.5px;color:#4d6a5f;margin-top:2px}
+.rbtn .rr{margin-left:auto;flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #8a9a92}
+.rbtn[aria-checked="true"] .rr{border-color:#064e3b;background:radial-gradient(circle,#064e3b 0 5px,#fff 6px)}
+#updateBar{position:fixed;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top,0px));z-index:1050;background:#064e3b;color:#fff;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;font:600 14px 'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+#updateBar[hidden]{display:none}#updateBar span{flex:1}
+#updateBar button{border:0;border-radius:10px;padding:8px 14px;font:700 14px inherit;font-family:inherit;cursor:pointer}
+#updateNow{background:#f5c800;color:#10261f}#updateLater{background:transparent;color:#fff;padding:8px}
 </style></head><body>
 <div id="splash"><img src="gensolar_app_icon.png" alt="GenSolar"><p>POWERING A GREENER TOMORROW</p></div><script>setTimeout(function(){var e=document.getElementById("splash");if(e){e.classList.add("out");setTimeout(function(){e.remove()},500)}},1600)</script>
 <div id="authGate" class="wgate"><main class="wapp">
@@ -170,17 +205,17 @@ html,body{margin:0;height:100%;background:#fff}
     <p class="abs sub">Solar solutions for homes, businesses and industry.</p>
 
     <div class="abs feats">
-      <div class="feat">
+      <div class="feat" role="button" tabindex="0" onclick="requestFeatureLogin('Solar Solutions')">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#0b5a3f" d="M27 4C14 4 5 11 5 21c0 3 1.5 5.5 3.5 7 .5-8 5.500-14 12.500-17-5 4-9 9-10 17 12 2 17-9 16-24z"/></svg>
-        Sustainable<br>Energy
+        Solar<br>Solutions
       </div>
-      <div class="feat">
+      <div class="feat" role="button" tabindex="0" onclick="requestFeatureLogin('Engineering')">
         <svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="#10261f"><circle cx="16" cy="16" r="6.2" stroke-width="4.2"/><circle cx="16" cy="16" r="10.6" stroke-width="4.4" stroke-dasharray="4.16 4.16" transform="rotate(-11 16 16)"/></g></svg>
-        Advanced<br>Engineering
+        Engineering
       </div>
-      <div class="feat">
+      <div class="feat" role="button" tabindex="0" onclick="requestFeatureLogin('Business Growth')">
         <svg viewBox="0 0 32 32" aria-hidden="true"><g fill="#0b5a3f"><rect x="3" y="20" width="6" height="9" rx="1"/><rect x="12" y="15" width="6" height="14" rx="1"/><rect x="21" y="10" width="6" height="19" rx="1"/></g><path d="M4 12l8-6 5 4 10-8" fill="none" stroke="#0b5a3f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 2h7v7" fill="none" stroke="#0b5a3f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Reliable<br>Performance
+        Business<br>Growth
       </div>
     </div>
 
@@ -227,17 +262,41 @@ html,body{margin:0;height:100%;background:#fff}
   </section>
 </main>
 <div id="featureLoginModal" class="feature-modal" role="dialog" aria-modal="true" aria-labelledby="featureLoginTitle" hidden><div class="feature-box"><h2 id="featureLoginTitle">Login required</h2><p id="featureLoginMessage">Sign in with your mobile number to continue.</p><div class="feature-actions"><button type="button" id="featureCancel">Cancel</button><button type="button" class="primary" id="featureLoginNow">Login</button></div></div></div>
-<div id="loginForm" class="wl hide-auth"><div class="scrim" onclick="backToRoles()"></div>
-<div class="signin" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
- <h2 id="loginTitle">Welcome back</h2>
- <p class="lead">Sign in with your mobile number. We send a one-time code by SMS. New accounts start as Customer.</p>
- <div class="f"><span class="lbl" id="phoneLabel">Indian mobile number</span><div class="ph"><span aria-hidden="true">+91</span><input id="loginPhone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="10-digit mobile number"></div></div>
- <button id="sendOtpButton" class="go" type="button" onclick="requestRealOtp()">Send OTP</button>
- <div id="otpFields" class="hide-auth"><div class="f" style="margin-top:14px"><span class="lbl">6-digit OTP</span><input id="loginOtp" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Enter SMS code"></div><button class="go" type="button" onclick="verifyRealOtp()">Verify and sign in</button></div>
- <p id="authMessage" class="msg" role="status" aria-live="polite"></p>
- <button class="cancel" type="button" onclick="backToRoles()">Cancel</button>
- <p class="note2">Company and management access is given by an administrator after you sign in once.</p>
-</div></div></div>
+<div id="loginForm" class="wl hide-auth">
+ <div class="lbg" aria-hidden="true"></div>
+ <button class="lback" type="button" onclick="backToRoles()" aria-label="Back"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+ <img class="llogo" src="logo-banner.png" alt="Gensolar" width="1200" height="196">
+ <div class="signin" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <h2 id="loginTitle">Login to GenSolar</h2>
+  <p class="lead">Enter your mobile number to receive a one-time code by SMS.</p>
+  <div class="f"><span class="lbl" id="phoneLabel">Mobile number</span><div class="ph"><span aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="8" r="4" fill="none" stroke="#0b4a37" stroke-width="2"/><path d="M4 21c0-4.500 3.500-7 8-7s8 2.500 8 7" fill="none" stroke="#0b4a37" stroke-width="2" stroke-linecap="round"/></svg>&nbsp;+91</span><input id="loginPhone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="10-digit mobile number"></div></div>
+  <button id="sendOtpButton" class="go" type="button" onclick="requestRealOtp()">Continue <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div id="otpFields" class="hide-auth"><div class="f" style="margin-top:14px"><span class="lbl">6-digit OTP</span><input id="loginOtp" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Enter SMS code"></div><button class="go" type="button" onclick="verifyRealOtp()">Verify and sign in</button></div>
+  <p id="authMessage" class="msg" role="status" aria-live="polite"></p>
+ </div>
+ <div class="qa" aria-label="What you can do in GenSolar">
+  <div><i><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="#0b4a37" stroke-width="2"/><path d="M8 7h8M8 12h2m4 0h2M8 16h2m4 0h2" stroke="#0b4a37" stroke-width="2" stroke-linecap="round"/></svg></i>Project<br>Estimator</div>
+  <div><i><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" fill="none" stroke="#0b4a37" stroke-width="2"/><path d="M3 20c0-3.500 2.700-5.500 6-5.500s6 2 6 5.500M16 6a3 3 0 010 6M18 15c2 .8 3 2.500 3 5" fill="none" stroke="#0b4a37" stroke-width="2" stroke-linecap="round"/></svg></i>Lead<br>Management</div>
+  <div><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.500" fill="none" stroke="#0b4a37" stroke-width="2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.600 5.600l2.100 2.100M16.300 16.300l2.100 2.100M18.400 5.600l-2.100 2.100M7.700 16.300l-2.100 2.100" stroke="#0b4a37" stroke-width="2" stroke-linecap="round"/></svg></i>Engineering<br>Tools</div>
+  <div><i><svg viewBox="0 0 24 24"><g fill="#0b4a37"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="8" width="4" height="12" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></g></svg></i>Reports<br>&amp; Analytics</div>
+ </div>
+ <div class="lfoot">Solar Energy for a Sustainable Tomorrow</div>
+</div>
+</div>
+
+<div id="roleScreen" class="wl rl hide-auth">
+ <div class="lbg" aria-hidden="true"></div>
+ <button class="lback" type="button" id="roleBack" aria-label="Back"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+ <div class="rwrap" role="dialog" aria-modal="true" aria-labelledby="roleTitle">
+  <h2 id="roleTitle">Select Your Role</h2>
+  <p class="lead" style="text-align:center">Choose your designation to access the relevant features</p>
+  <div id="roleList" role="radiogroup" aria-labelledby="roleTitle"></div>
+  <p class="note2" id="roleNote">Company roles are confirmed by a GenSolar administrator. Until then you can use the app with Customer access.</p>
+  <button class="go" id="roleNext" type="button">Next <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+ </div>
+</div>
+
+<div id="updateBar" hidden><span id="updateText">Update available</span><button type="button" id="updateNow">Update</button><button type="button" id="updateLater" aria-label="Dismiss">✕</button></div>
 
 <div id="app" hidden>
   <header class="ahead">
@@ -784,7 +843,7 @@ function model(p){
     $('pfName').value=p.name||'';$('pfEmail').value=p.email||'';
     $('pfPhone').value=(session&&session.phone)||p.phone||'';
     $('pfPhone').readOnly=!!(session&&session.phone);
-    $('pfRole').textContent=ROLE_LABEL[r];
+    $('pfRole').textContent=ROLE_LABEL[r]+((session&&session.requested&&session.requested!=='customer')?' · '+desName(session.requested)+' requested (pending approval)':'');
     $('pfNote').textContent=r==='guest'?'You are browsing as a guest. Sign in to save estimates and your profile.':(r==='customer'?'Company and management access is given by an administrator.':'Company account.');
     $('pfSignOut').hidden=(r==='guest');$('pfSignIn').hidden=(r!=='guest');
     paintAvatar();
@@ -1070,13 +1129,48 @@ function model(p){
   };
   window.onGenSolarOtpSent=function(){$('otpFields').classList.remove('hide-auth');$('sendOtpButton').disabled=false;authStatus('OTP sent. Check your SMS messages.')};
   window.onGenSolarAuthError=function(m){$('sendOtpButton').disabled=false;authStatus(m||'Authentication failed.',true)};
-  window.onGenSolarAuthSuccess=function(uid,r,phone){
-    session={mode:'user',uid:uid,role:normRole(r),phone:last10(phone)};
+  var DESIGNATIONS=[
+    {k:'admin',n:'Admin',d:'Full access to all modules (Management Level)',i:'A'},
+    {k:'sales_head',n:'Sales Head',d:'Manage team, leads and projects',i:'SH'},
+    {k:'regional_manager',n:'Regional Manager',d:'Monitor regional sales and projects',i:'RM'},
+    {k:'sales_manager',n:'Sales Manager',d:'Manage sales activities and team',i:'SM'},
+    {k:'sales_rep',n:'Sales Representative',d:'Create and manage leads',i:'SR'},
+    {k:'channel_partner',n:'Channel Partner',d:'Partner management and sales',i:'CP'},
+    {k:'customer',n:'Customer',d:'View projects, quotes and track status',i:'C'}
+  ];
+  function desName(k){for(var i=0;i<DESIGNATIONS.length;i++)if(DESIGNATIONS[i].k===k)return DESIGNATIONS[i].n;return ''}
+  var roleChoice='';
+  function paintRoleList(){
+    var h='';DESIGNATIONS.forEach(function(x){h+='<button type="button" class="rbtn" role="radio" aria-checked="'+(roleChoice===x.k)+'" data-k="'+x.k+'"><span class="ri">'+x.i+'</span><span><b>'+esc(x.n)+'</b><small>'+esc(x.d)+'</small></span><span class="rr"></span></button>'});
+    $('roleList').innerHTML=h;
+  }
+  function showRole(on){
+    var el=$('roleScreen');if(!el)return;
+    if(on){roleChoice='customer';paintRoleList();el.classList.remove('hide-auth');showSheet(false)}else el.classList.add('hide-auth');
+  }
+  $('roleList').addEventListener('click',function(e){var b=e.target.closest('.rbtn');if(!b)return;roleChoice=b.getAttribute('data-k');paintRoleList()});
+  $('roleBack').addEventListener('click',function(){showRole(false);signOut()});
+  $('roleNext').addEventListener('click',function(){
+    if(!roleChoice){toast('Select your role');return}
+    if(session&&session.uid)lsSet('gs_req_'+session.uid,roleChoice);
+    session.requested=roleChoice;
+    try{if(window.GenSolarAuth&&typeof window.GenSolarAuth.saveDesignation==='function')window.GenSolarAuth.saveDesignation(roleChoice)}catch(e){}
+    showRole(false);enterApp();
+    if(roleChoice!=='customer')toast('Role request sent. You have Customer access until an administrator approves it.');
+  });
+  function enterApp(){
     cloudLoadLeads();
     if(location.hash==='#login'){history.replaceState(null,'','#est');route();toast('Signed in')}
-    else paintWelcome();
+    else{route();paintWelcome()}
+  }
+  window.onGenSolarAuthSuccess=function(uid,r,phone,requested){
+    var req=requested||lsGet('gs_req_'+uid,'');
+    session={mode:'user',uid:uid,role:normRole(r),phone:last10(phone),requested:req||''};
+    if(!req){showRole(true);return}
+    enterApp();
   };
   function signOut(){
+    try{$('roleScreen').classList.add('hide-auth')}catch(e){}
     try{if(window.GenSolarAuth)window.GenSolarAuth.signOut()}catch(e){}
     session=null;filter='all';
     history.replaceState(null,'','#');location.hash='';route();toast('Signed out');
@@ -1088,6 +1182,29 @@ function model(p){
   if(welcomeLoginButton)welcomeLoginButton.addEventListener('click',function(e){e.preventDefault();window.openLogin();});
   var welcomeExploreButton=$('explore');
   if(welcomeExploreButton)welcomeExploreButton.addEventListener('click',function(e){e.preventDefault();window.exploreWebsite();});
+
+  /* ---------- in-app update check (GitHub Releases) ---------- */
+  var UPDATE_API='https://api.github.com/repos/VEERA0007/gensolar-pro/releases/tags/latest',updateUrl='';
+  function verParts(v){return String(v||'0').replace(/^[^\d]*/,'').split('.').map(function(x){return parseInt(x,10)||0})}
+  function verNewer(a,b){var x=verParts(a),y=verParts(b);for(var i=0;i<Math.max(x.length,y.length);i++){var p=x[i]||0,q=y[i]||0;if(p!==q)return p>q}return false}
+  function checkForUpdate(){
+    var cur='';try{cur=window.GenSolarNative&&window.GenSolarNative.appVersion?String(window.GenSolarNative.appVersion()):''}catch(e){}
+    if(!cur||typeof fetch!=='function')return;
+    var ctl=window.AbortController?new AbortController():null,t=setTimeout(function(){if(ctl)ctl.abort()},8000);
+    fetch(UPDATE_API,{headers:{Accept:'application/vnd.github+json'},signal:ctl?ctl.signal:undefined}).then(function(r){return r.ok?r.json():null}).then(function(j){
+      clearTimeout(t);if(!j||!j.assets)return;
+      for(var i=0;i<j.assets.length;i++){
+        var a=j.assets[i],m=/GenSolar-Pro-v([\d.]+)\.apk$/i.exec(a.name||'');
+        if(m&&verNewer(m[1],cur)&&lsGet('gs_update_skip','')!==m[1]){updateUrl=a.browser_download_url;$('updateText').textContent='Update available: GenSolar v'+m[1];$('updateBar').hidden=false;$('updateBar').dataset.v=m[1];break}
+      }
+    }).catch(function(){clearTimeout(t)});
+  }
+  $('updateNow').addEventListener('click',function(){
+    try{if(window.GenSolarNative&&window.GenSolarNative.openUrl&&updateUrl){window.GenSolarNative.openUrl(updateUrl);toast('Download started. Open the downloaded file to install.')}}catch(e){}
+    $('updateBar').hidden=true;
+  });
+  $('updateLater').addEventListener('click',function(){lsSet('gs_update_skip',$('updateBar').dataset.v||'');$('updateBar').hidden=true});
+  setTimeout(checkForUpdate,3000);
   paintAvatar();route();
 })();
 </script>
