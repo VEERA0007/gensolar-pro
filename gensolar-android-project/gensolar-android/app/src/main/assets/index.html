@@ -1120,14 +1120,14 @@ function model(p){
     var phone=last10($('loginPhone').value);
     if(!/^[6-9]\d{9}$/.test(phone)){authStatus('Enter a valid 10-digit Indian mobile number.',true);return}
     if(!window.GenSolarAuth){authStatus('OTP sign-in works in the Android app only.',true);return}
-    $('sendOtpButton').disabled=true;authStatus('Requesting OTP…');window.GenSolarAuth.sendOtp(phone);
+    $('sendOtpButton').disabled=true;authStatus('Sending OTP to +91 '+phone+'… please wait');window.GenSolarAuth.sendOtp(phone);
   };
   window.verifyRealOtp=function(){
     var code=$('loginOtp').value.replace(/\D/g,'');
     if(code.length!==6){authStatus('Enter the 6-digit OTP.',true);return}
-    authStatus('Verifying OTP…');window.GenSolarAuth.verifyOtp(code);
+    authStatus('Verifying OTP and loading your account… please wait');window.GenSolarAuth.verifyOtp(code);
   };
-  window.onGenSolarOtpSent=function(){$('otpFields').classList.remove('hide-auth');$('sendOtpButton').disabled=false;authStatus('OTP sent. Check your SMS messages.')};
+  window.onGenSolarOtpSent=function(){$('otpFields').classList.remove('hide-auth');$('sendOtpButton').disabled=false;authStatus('OTP sent to +91 '+last10($('loginPhone').value)+'. Enter the 6-digit code below, then tap Verify. Your role selection comes next.');setTimeout(function(){try{$('loginOtp').focus();$('loginOtp').scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},150)};
   window.onGenSolarAuthError=function(m){$('sendOtpButton').disabled=false;authStatus(m||'Authentication failed.',true)};
   var DESIGNATIONS=[
     {k:'admin',n:'Admin',d:'Full access to all modules (Management Level)',i:'A'},
