@@ -216,24 +216,128 @@ public class MainActivity extends Activity {
         if (db == null) { jsError("Firestore is not initialized."); return; }
         DocumentReference ref = db.collection("users").document(user.getUid());
         ref.get().addOnSuccessListener(doc -> {
-            if (doc.exists()) {
-                String role = doc.getString("role");
-                if (role == null || role.isEmpty()) role = "customer";
-                authSuccess(user, role, doc.getString("requestedRole"), doc.getString("displayName"), doc.getString("email"));
-            } else {
-                Map<String,Object> profile = new HashMap<>();
-                profile.put("uid", user.getUid());
-                profile.put("phone", user.getPhoneNumber() == null ? "" : user.getPhoneNumber());
-                profile.put("role", "customer");
-                profile.put("createdAt", System.currentTimeMillis());
-                ref.set(profile, SetOptions.merge()).addOnSuccessListener(v -> authSuccess(user, "customer", "", "", ""))
-                    .addOnFailureListener(e -> jsError("Signed in, but profile setup failed: " + e.getMessage()));
-            }
+            String role = doc.exists() ? doc.getString("role") : null;
+            if (role == null || role.isEmpty()) role = "customer";
+            String phone = user.getPhoneNumber();
+            if ("customer".equals(role) && phone != null && !phone.isEmpty()) {
+                db.collection("invites").document(phone).get().addOnSuccessListener(inv -> {
+                    if (inv.exists() && inv.getString("role") != null) applyInvite(user, doc, ref, inv);
+                    else proceedProfile(user, doc, ref);
+                }).addOnFailureListener(e -> proceedProfile(user, doc, ref));
+            } else proceedProfile(user, doc, ref);
         }).addOnFailureListener(e -> jsError("Could not load account role. Check Firestore rules: " + e.getMessage()));
+    }
+
+    private void applyInvite(FirebaseUser user, com.google.firebase.firestore.DocumentSnapshot doc, DocumentReference ref, com.google.firebase.firestore.DocumentSnapshot inv) {
+        String role = inv.getString("role");
+        String designation = inv.getString("designation");
+        String name = inv.getString("name");
+        Map<String,Object> data = new HashMap<>();
+        data.put("uid", user.getUid());
+        data.put("phone", user.getPhoneNumber() == null ? "" : user.getPhoneNumber());
+        data.put("role", role);
+        data.put("organizationId", inv.getString("organizationId") == null ? "" : inv.getString("organizationId"));
+        if (designation != null) data.put("requestedRole", designation);
+        String existingName = doc.exists() ? doc.getString("displayName") : null;
+        final String shownName = (existingName != null && !existingName.isEmpty()) ? existingName : (name == null ? "" : name);
+        if (!shownName.isEmpty()) data.put("displayName", shownName);
+        if (!doc.exists()) data.put("createdAt", System.currentTimeMillis());
+        data.put("approvedAt", System.currentTimeMillis());
+        ref.set(data, SetOptions.merge()).addOnSuccessListener(v -> {
+            inv.getReference().delete();
+            authSuccess(user, role, designation, shownName, doc.exists() ? doc.getString("email") : "");
+        }).addOnFailureListener(e -> proceedProfile(user, doc, ref));
+    }
+
+    private void proceedProfile(FirebaseUser user, com.google.firebase.firestore.DocumentSnapshot doc, DocumentReference ref) {
+        if (doc.exists()) {
+            String role = doc.getString("role");
+            if (role == null || role.isEmpty()) role = "customer";
+            authSuccess(user, role, doc.getString("requestedRole"), doc.getString("displayName"), doc.getString("email"));
+        } else {
+            Map<String,Object> profile = new HashMap<>();
+            profile.put("uid", user.getUid());
+            profile.put("phone", user.getPhoneNumber() == null ? "" : user.getPhoneNumber());
+            profile.put("role", "customer");
+            profile.put("createdAt", System.currentTimeMillis());
+            ref.set(profile, SetOptions.merge()).addOnSuccessListener(v -> authSuccess(user, "customer", "", "", ""))
+                .addOnFailureListener(e -> jsError("Signed in, but profile setup failed: " + e.getMessage()));
+        }
     }
 
     private class AdminBridge {
         private void adminError(String m) { js("window.onGenSolarAdminError && window.onGenSolarAdminError(" + JSONObject.quote(m) + ")"); }
+
+
+        private String mapRole(String designation) {
+            if ("sales_rep".equals(designation) || "channel_partner".equals(designation)) return "rep";
+            if ("sales_head".equals(designation) || "regional_manager".equals(designation) || "sales_manager".equals(designation)) return "manager";
+            return null;
+        }
+
+        @JavascriptInterface public void addMember(String name, String phone10, String designation) {
+            FirebaseUser me = auth == null ? null : auth.getCurrentUser();
+            if (me == null || db == null) { adminError("Sign in first."); return; }
+            String role = mapRole(designation);
+            String digits = phone10 == null ? "" : phone10.replaceAll("\\D", "");
+            if (role == null || !digits.matches("[6-9][0-9]{9}") || name == null || name.trim().isEmpty()) { adminError("Check the name, mobile number and role."); return; }
+            final String phone = "+91" + digits;
+            final String cleanName = name.trim().length() > 80 ? name.trim().substring(0, 80) : name.trim();
+            db.collection("users").document(me.getUid()).get().addOnSuccessListener(profile -> {
+                String org = profile.getString("organizationId");
+                if (!"admin".equals(profile.getString("role")) || org == null || org.isEmpty()) { adminError("Only an admin with an organizationId can add members."); return; }
+                Map<String,Object> data = new HashMap<>();
+                data.put("name", cleanName); data.put("phone", phone); data.put("designation", designation);
+                data.put("role", role); data.put("organizationId", org);
+                data.put("createdBy", me.getUid()); data.put("createdAt", System.currentTimeMillis());
+                db.collection("invites").document(phone).set(data)
+                    .addOnSuccessListener(v -> js("window.onGenSolarMemberChanged && window.onGenSolarMemberChanged(" + JSONObject.quote(cleanName + " added. They get access when they sign in with " + phone + ".") + ")"))
+                    .addOnFailureListener(e -> adminError("Could not add member. Publish the latest firestore.rules. " + e.getMessage()));
+            }).addOnFailureListener(e -> adminError("Could not load your profile."));
+        }
+
+        @JavascriptInterface public void removeInvite(String phone) {
+            if (db == null || phone == null || !phone.matches("\\+91[6-9][0-9]{9}")) return;
+            db.collection("invites").document(phone).delete()
+                .addOnSuccessListener(v -> js("window.onGenSolarMemberChanged && window.onGenSolarMemberChanged('Removed')"))
+                .addOnFailureListener(e -> adminError("Could not remove. " + e.getMessage()));
+        }
+
+        @JavascriptInterface public void loadMembers() {
+            FirebaseUser me = auth == null ? null : auth.getCurrentUser();
+            if (me == null || db == null) return;
+            db.collection("users").document(me.getUid()).get().addOnSuccessListener(profile -> {
+                String org = profile.getString("organizationId");
+                if (!"admin".equals(profile.getString("role")) || org == null || org.isEmpty()) return;
+                db.collection("users").whereEqualTo("organizationId", org).get().addOnSuccessListener(us -> {
+                    JSONArray members = new JSONArray();
+                    for (com.google.firebase.firestore.DocumentSnapshot d : us.getDocuments()) {
+                        try {
+                            JSONObject o = new JSONObject();
+                            o.put("uid", d.getId());
+                            o.put("name", d.getString("displayName") == null ? "" : d.getString("displayName"));
+                            o.put("phone", d.getString("phone") == null ? "" : d.getString("phone"));
+                            o.put("role", d.getString("role") == null ? "customer" : d.getString("role"));
+                            o.put("requestedRole", d.getString("requestedRole") == null ? "" : d.getString("requestedRole"));
+                            members.put(o);
+                        } catch (Exception ignored) { }
+                    }
+                    db.collection("invites").whereEqualTo("organizationId", org).get().addOnSuccessListener(is -> {
+                        JSONArray invites = new JSONArray();
+                        for (com.google.firebase.firestore.DocumentSnapshot d : is.getDocuments()) {
+                            try {
+                                JSONObject o = new JSONObject();
+                                o.put("name", d.getString("name") == null ? "" : d.getString("name"));
+                                o.put("phone", d.getId());
+                                o.put("designation", d.getString("designation") == null ? "" : d.getString("designation"));
+                                invites.put(o);
+                            } catch (Exception ignored) { }
+                        }
+                        js("window.onGenSolarMembers && window.onGenSolarMembers(JSON.parse(" + JSONObject.quote(members.toString()) + "), JSON.parse(" + JSONObject.quote(invites.toString()) + "))");
+                    }).addOnFailureListener(e -> adminError("Could not load invited members. Publish the latest firestore.rules."));
+                }).addOnFailureListener(e -> adminError("Could not load members. Publish the latest firestore.rules."));
+            });
+        }
 
         @JavascriptInterface public void loadRequests() {
             FirebaseUser me = auth == null ? null : auth.getCurrentUser();
@@ -241,7 +345,7 @@ public class MainActivity extends Activity {
             db.collection("users").document(me.getUid()).get().addOnSuccessListener(profile -> {
                 String role = profile.getString("role");
                 String org = profile.getString("organizationId");
-                if (!("manager".equals(role) || "admin".equals(role))) { adminError("Only managers can review role requests."); return; }
+                if (!"admin".equals(role)) { adminError("Only admins can use the Team page."); return; }
                 if (org == null || org.isEmpty()) { adminError("Add an organizationId to your own account in Firebase first."); return; }
                 java.util.List<String> wanted = java.util.Arrays.asList("admin","sales_head","regional_manager","sales_manager","sales_rep","channel_partner");
                 db.collection("users").whereIn("requestedRole", wanted).get().addOnSuccessListener(snap -> {

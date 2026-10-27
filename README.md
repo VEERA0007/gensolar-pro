@@ -60,3 +60,9 @@ This version merges the earlier v1.4 app with the extra work from the reference 
 ## v1.8 — Team approvals
 
 Managers and admins get a **Team** tab listing role requests. Approve gives `rep` (Sales Representative, Channel Partner) or `manager` (Sales Head, Regional Manager, Sales Manager); only an `admin` can approve manager requests. The `admin` role itself is set only in the Firebase console. First-time setup: on your own `users/{uid}` document set `role` = `admin` and `organizationId` = e.g. `genesis`. Publish the updated `firestore.rules`.
+
+## v1.9
+
+- Profile photo: tap the round photo on the Profile page (pencil badge) to change it.
+- Team tab is admin-only: add members by name, mobile number and role; they receive the role automatically on first sign-in (stored in `invites/{+91number}`, deleted after use). Also lists members, waiting invites and role requests.
+- Publish the updated `firestore.rules` (new `invites` collection; role requests and member lists are admin-only).

@@ -159,6 +159,7 @@ html,body{margin:0;height:100%;background:#fff}
 @media(min-width:600px){.feature-modal{padding:32px}}
 
 /* ===== v1.7 UI (mockup) ===== */
+.pfwrap{position:relative;display:block;flex:none;cursor:pointer}.pfedit{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:#064e3b;border:2px solid #fff;display:flex;align-items:center;justify-content:center}
 #app input[type=file]{width:100%;font:600 14px inherit;font-family:inherit;color:var(--muted)}#app input[type=file]::file-selector-button{background:#064e3b;color:#fff;border:0;border-radius:10px;padding:10px 16px;margin-right:12px;font:700 14px inherit;font-family:inherit;cursor:pointer}
 .wl,.wl *{box-sizing:border-box}.wl{overflow-x:hidden;width:100%;max-width:100vw}.wl .signin,.wl .qa,.wl.rl .rwrap{min-width:0}
 .wl.rl{height:100%}.wl.rl .rwrap{height:calc(100% - 60px);margin-top:56px!important;display:flex;flex-direction:column}.wl.rl #roleList{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:6px}.wl.rl .rbtn{flex:1 1 0;min-height:44px;max-height:76px;margin:0;padding:4px 12px}.wl.rl .note2{margin:8px 0;font-size:11.5px;flex:none}.wl.rl .go{flex:none;min-height:50px}.wl.rl .lead{margin:2px 0 8px;font-size:13px}
@@ -412,21 +413,30 @@ html,body{margin:0;height:100%;background:#fff}
     <section id="view-profile" class="page" hidden>
       <h1>Profile</h1>
       <div class="pfcard">
-        <div class="pfhead"><div class="pfpic" id="pfPic">G</div><div><div id="pfRole" class="role">Guest</div><p class="lede" id="pfNote" style="margin:6px 0 0;font-size:13px"></p></div></div>
+        <div class="pfhead"><label class="pfwrap" for="pfPhoto" aria-label="Change profile photo"><div class="pfpic" id="pfPic">G</div><span class="pfedit" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 20h4L19 9l-4-4L4 16v4z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg></span></label><input id="pfPhoto" type="file" accept="image/*" hidden><div><div id="pfRole" class="role">Guest</div><p class="lede" id="pfNote" style="margin:6px 0 0;font-size:13px"></p></div></div>
         <div class="field"><label for="pfName">Display name</label><input id="pfName" type="text" autocomplete="name" placeholder="Your name or company"></div>
         <div class="field"><label for="pfEmail">Email (optional)</label><input id="pfEmail" type="email" autocomplete="email" placeholder="name@company.com"></div>
         <div class="field"><label for="pfPhone">Mobile</label><input id="pfPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"></div>
-        <div class="field"><label for="pfPhoto">Profile photo</label><input id="pfPhoto" type="file" accept="image/*"><small>Saved on this phone only.</small></div>
-        <div class="qrow"><button class="btn" id="pfSave" type="button">Save profile</button><button class="btn alt" id="pfRemove" type="button">Remove photo</button></div>
+        <div class="qrow"><button class="btn" id="pfSave" type="button">Save profile</button><button class="btn alt" id="pfRemove" type="button" hidden>Remove photo</button></div>
         <div class="qrow"><button class="btn danger" id="pfSignOut" type="button">Sign out</button><button class="btn" id="pfSignIn" type="button" hidden>Sign in with OTP</button></div>
         <small id="verLabel" style="color:var(--muted)">GenSolar Pro</small>
       </div>
     </section>
 
         <section id="view-team" class="page" hidden>
-      <h1>Team approvals</h1>
-      <p class="lede">People who asked for a company role appear here. Approve to give them access, or decline to keep them as customers.</p>
-      <div class="panel" style="margin-top:14px"><div id="teamList" aria-live="polite"><p class="meta">Loading…</p></div>
+      <h1>Team</h1>
+      <p class="lede">Add your people, see who has access, and approve role requests. Only admins can see this page.</p>
+      <div class="panel" style="margin-top:14px">
+        <h2>Add member</h2>
+        <div class="field"><label for="tmName">Name</label><input id="tmName" type="text" autocomplete="off" placeholder="Full name"></div>
+        <div class="field"><label for="tmPhone">Mobile number</label><input id="tmPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"></div>
+        <div class="field"><label for="tmRole">Role</label><select id="tmRole"><option value="sales_head">Sales Head</option><option value="regional_manager">Regional Manager</option><option value="sales_manager">Sales Manager</option><option value="sales_rep" selected>Sales Representative</option><option value="channel_partner">Channel Partner</option></select></div>
+        <button class="btn primary" id="tmAdd" type="button">Add member</button>
+        <p class="meta" style="margin-top:8px">They get this role automatically the first time they sign in with that mobile number.</p>
+      </div>
+      <div class="panel" style="margin-top:14px"><h2>Waiting for first sign-in</h2><div id="tmInvites"><p class="meta">Loading…</p></div></div>
+      <div class="panel" style="margin-top:14px"><h2>Members</h2><div id="tmMembers"><p class="meta">Loading…</p></div></div>
+      <div class="panel" style="margin-top:14px"><h2>Role requests</h2><div id="teamList" aria-live="polite"><p class="meta">Loading…</p></div>
       <button class="btn" id="teamRefresh" type="button" style="margin-top:10px">Refresh</button></div>
     </section>
 
@@ -847,7 +857,7 @@ function model(p){
   function profile(){return lsGet('gs_profile_v2',{name:'',email:'',phone:'',photo:''})}
   function initials(){var n=profile().name||'';var t=n.trim().split(/\s+/).map(function(w){return w[0]}).join('').slice(0,2).toUpperCase();return t||'G'}
   function paintAvatar(){
-    var p=profile(),a=$('avatarBtn'),pic=$('pfPic');
+    var p=profile(),a=$('avatarBtn'),pic=$('pfPic');try{$('pfRemove').hidden=!p.photo}catch(e){}
     if(p.photo){a.innerHTML='<img alt="" src="'+p.photo+'">';pic.innerHTML='<img alt="" src="'+p.photo+'">'}
     else{a.innerHTML='<span>'+esc(initials())+'</span>';pic.textContent=initials()}
   }
@@ -1017,7 +1027,7 @@ function model(p){
     var comp=isCompany(),r=role();
     $('hsub').textContent=r==='guest'?'Guest · rooftop solar estimator':ROLE_LABEL[r]+' · rooftop solar estimator';
     $('tabLeads').hidden=(r==='guest');
-    $('tabTeam').hidden=(r!=='manager');
+    $('tabTeam').hidden=!(session&&session.raw==='admin');
     $('tabLeadsLbl').textContent=comp?'Leads':'My estimates';
     paintAvatar();
   }
@@ -1080,7 +1090,7 @@ function model(p){
   }
   function route(){
     var h=location.hash.replace('#','');
-    var inApp=(h==='est'||h==='leads'||h==='profile'||h==='engineering'||(h==='team'&&role()==='manager'))&&session;
+    var inApp=(h==='est'||h==='leads'||h==='profile'||h==='engineering'||(h==='team'&&session&&session.raw==='admin'))&&session;
     $('app').hidden=!inApp;
     $('authGate').classList.toggle('hide-auth',!!inApp);
     if(inApp){showSheet(false);showView(h)}
@@ -1205,8 +1215,25 @@ function model(p){
   function loadTeam(){
     var box=$('teamList');box.innerHTML='<p class="meta">Loading…</p>';
     if(!window.GenSolarAdmin){box.innerHTML='<p class="meta">Approvals work in the Android app.</p>';return}
-    try{window.GenSolarAdmin.loadRequests()}catch(e){box.innerHTML='<p class="meta">Could not load requests.</p>'}
+    try{window.GenSolarAdmin.loadRequests();window.GenSolarAdmin.loadMembers()}catch(e){box.innerHTML='<p class="meta">Could not load requests.</p>'}
   }
+  var DES_BY_KEY={};DESIGNATIONS.forEach(function(x){DES_BY_KEY[x.k]=x.n});
+  window.onGenSolarMembers=function(members,invites){
+    var m='',i='';
+    (members||[]).forEach(function(u){m+='<div class="stat" style="margin-bottom:8px;text-align:left"><b>'+esc(u.name||u.phone||u.uid)+'</b><span>'+esc(u.phone||'')+' · '+esc(u.requestedRole&&DES_BY_KEY[u.requestedRole]?DES_BY_KEY[u.requestedRole]:(u.role==='rep'?'Representative':u.role==='admin'?'Admin':u.role==='manager'?'Manager':'Customer'))+'</span></div>'});
+    (invites||[]).forEach(function(v){i+='<div class="stat" style="margin-bottom:8px;text-align:left"><b>'+esc(v.name||v.phone)+'</b><span>'+esc(v.phone)+' · '+esc(DES_BY_KEY[v.designation]||'')+'</span><div style="margin-top:8px"><button class="btn" type="button" data-rminv="'+esc(v.phone)+'">Remove</button></div></div>'});
+    $('tmMembers').innerHTML=m||'<p class="meta">No members yet.</p>';
+    $('tmInvites').innerHTML=i||'<p class="meta">No one is waiting.</p>';
+  };
+  $('tmInvites').addEventListener('click',function(e){var b=e.target.closest('[data-rminv]');if(!b)return;try{window.GenSolarAdmin.removeInvite(b.getAttribute('data-rminv'))}catch(x){toast('Could not remove')}});
+  $('tmPhone').addEventListener('input',function(e){e.target.value=e.target.value.replace(/\D/g,'').slice(0,10)});
+  $('tmAdd').addEventListener('click',function(){
+    var n=$('tmName').value.trim(),ph=last10($('tmPhone').value);
+    if(!n){toast('Enter the member name');return}
+    if(!/^[6-9]\d{9}$/.test(ph)){toast('Enter a valid 10-digit mobile number');return}
+    try{window.GenSolarAdmin.addMember(n,ph,$('tmRole').value)}catch(x){toast('Could not add member')}
+  });
+  window.onGenSolarMemberChanged=function(msg){toast(msg||'Saved');$('tmName').value='';$('tmPhone').value='';loadTeam()};
   window.onGenSolarRequests=function(rows,myRaw){
     var box=$('teamList'),isAdmin=(myRaw==='admin'),h='';
     (rows||[]).forEach(function(u){
