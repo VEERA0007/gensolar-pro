@@ -422,6 +422,13 @@ html,body{margin:0;height:100%;background:#fff}
       </div>
     </section>
 
+        <section id="view-team" class="page" hidden>
+      <h1>Team approvals</h1>
+      <p class="lede">People who asked for a company role appear here. Approve to give them access, or decline to keep them as customers.</p>
+      <div class="panel" style="margin-top:14px"><div id="teamList" aria-live="polite"><p class="meta">Loading…</p></div>
+      <button class="btn" id="teamRefresh" type="button" style="margin-top:10px">Refresh</button></div>
+    </section>
+
     <section id="view-engineering" class="page" hidden>
       <h1>Engineering &amp; site design</h1>
       <p class="lede">Use this workspace for preliminary panel sizing, roof fit, orientation, inverter sizing and site-survey readiness. Enter solar-resource figures from a verified assessment; this page does not fetch live satellite data.</p>
@@ -493,6 +500,7 @@ html,body{margin:0;height:100%;background:#fff}
   <nav class="tabbar" aria-label="Main">
     <button type="button" data-tab="est"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Estimator</button>
     <button type="button" data-tab="leads" id="tabLeads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span id="tabLeadsLbl">Leads</span></button>
+    <button type="button" data-tab="team" id="tabTeam" hidden aria-label="Team approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.500 2.700-5.500 6-5.500s6 2 6 5.500"/><path d="M17 11l2 2 4-4"/></svg><span>Team</span></button>
     <button type="button" data-tab="engineering" aria-label="Engineering and site design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8"/></svg>Engineering</button>
     <button type="button" data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</button>
   </nav>
@@ -847,7 +855,7 @@ function model(p){
     $('pfName').value=p.name||'';$('pfEmail').value=p.email||'';
     $('pfPhone').value=(session&&session.phone)||p.phone||'';
     $('pfPhone').readOnly=!!(session&&session.phone);
-    $('pfRole').textContent=ROLE_LABEL[r]+((session&&session.requested&&session.requested!=='customer')?' · '+desName(session.requested)+' requested (pending approval)':'');
+    $('pfRole').textContent=ROLE_LABEL[r]+((session&&session.requested&&session.requested!=='customer')?(desRole(session.requested)===r?' · '+desName(session.requested):' · '+desName(session.requested)+' requested (pending approval)'):'');
     $('pfNote').textContent=r==='guest'?'You are browsing as a guest. Sign in to save estimates and your profile.':(r==='customer'?'Company and management access is given by an administrator.':'Company account.');
     $('pfSignOut').hidden=(r==='guest');$('pfSignIn').hidden=(r!=='guest');
     paintAvatar();
@@ -1008,6 +1016,7 @@ function model(p){
     var comp=isCompany(),r=role();
     $('hsub').textContent=r==='guest'?'Guest · rooftop solar estimator':ROLE_LABEL[r]+' · rooftop solar estimator';
     $('tabLeads').hidden=(r==='guest');
+    $('tabTeam').hidden=(r!=='manager');
     $('tabLeadsLbl').textContent=comp?'Leads':'My estimates';
     paintAvatar();
   }
@@ -1059,17 +1068,18 @@ function model(p){
   function showView(v){
     if(v==='leads'&&role()==='guest')v='est';
     activeTab=v;
-    ['est','leads','profile','engineering'].forEach(function(x){$('view-'+x).hidden=(x!==v)});
+    ['est','leads','profile','engineering','team'].forEach(function(x){$('view-'+x).hidden=(x!==v)});
     document.querySelectorAll('.tabbar button').forEach(function(b){if(b.getAttribute('data-tab')===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
     paintShell();
     if(v==='leads')renderLeads();
     if(v==='profile')paintProfile();
     if(v==='engineering')renderEngineering();
+    if(v==='team')loadTeam();
     $('amain').scrollTop=0;
   }
   function route(){
     var h=location.hash.replace('#','');
-    var inApp=(h==='est'||h==='leads'||h==='profile'||h==='engineering')&&session;
+    var inApp=(h==='est'||h==='leads'||h==='profile'||h==='engineering'||(h==='team'&&role()==='manager'))&&session;
     $('app').hidden=!inApp;
     $('authGate').classList.toggle('hide-auth',!!inApp);
     if(inApp){showSheet(false);showView(h)}
@@ -1169,7 +1179,7 @@ function model(p){
   }
   window.onGenSolarAuthSuccess=function(uid,r,phone,requested){
     var req=requested||lsGet('gs_req_'+uid,'');
-    session={mode:'user',uid:uid,role:normRole(r),phone:last10(phone),requested:req||''};
+    session={mode:'user',uid:uid,role:normRole(r),raw:String(r||''),phone:last10(phone),requested:req||''};
     if(!req){showRole(true);return}
     enterApp();
   };
@@ -1186,6 +1196,40 @@ function model(p){
   if(welcomeLoginButton)welcomeLoginButton.addEventListener('click',function(e){e.preventDefault();window.openLogin();});
   var welcomeExploreButton=$('explore');
   if(welcomeExploreButton)welcomeExploreButton.addEventListener('click',function(e){e.preventDefault();window.exploreWebsite();});
+
+
+  /* ---------- team approvals (managers) ---------- */
+  function desRole(k){return k==='sales_rep'||k==='channel_partner'?'rep':(k==='customer'?'customer':'manager')}
+  function loadTeam(){
+    var box=$('teamList');box.innerHTML='<p class="meta">Loading…</p>';
+    if(!window.GenSolarAdmin){box.innerHTML='<p class="meta">Approvals work in the Android app.</p>';return}
+    try{window.GenSolarAdmin.loadRequests()}catch(e){box.innerHTML='<p class="meta">Could not load requests.</p>'}
+  }
+  window.onGenSolarRequests=function(rows,myRaw){
+    var box=$('teamList'),isAdmin=(myRaw==='admin'),h='';
+    (rows||[]).forEach(function(u){
+      var target=desRole(u.requestedRole);
+      if(u.uid===(session&&session.uid)||u.role===target||u.role==='admin'||(u.role==='manager'&&target==='rep'))return;
+      var canGrant=target==='rep'||(target==='manager'&&isAdmin)&&u.requestedRole!=='admin';
+      var when=u.requestedAt?new Date(u.requestedAt).toLocaleDateString('en-IN'):'';
+      h+='<div class="stat" style="margin-bottom:10px;text-align:left"><b>'+esc(u.phone||u.uid)+'</b><span>'+esc(desName(u.requestedRole))+' · '+esc(when)+'</span>'+
+        (u.requestedRole==='admin'?'<small>Admin access is assigned only in the Firebase console.</small>':(canGrant?'':'<small>Only an admin can approve manager roles.</small>'))+
+        '<div style="display:flex;gap:8px;margin-top:8px">'+
+        (canGrant?'<button class="btn primary" type="button" data-appr="'+esc(u.uid)+'" data-role="'+target+'">Approve</button>':'')+
+        '<button class="btn" type="button" data-decl="'+esc(u.uid)+'">Decline</button></div></div>';
+    });
+    box.innerHTML=h||'<p class="meta">No pending requests.</p>';
+  };
+  $('teamList').addEventListener('click',function(e){
+    var a=e.target.closest('[data-appr]'),d=e.target.closest('[data-decl]');
+    try{
+      if(a)window.GenSolarAdmin.decide(a.getAttribute('data-appr'),a.getAttribute('data-role'),true);
+      else if(d)window.GenSolarAdmin.decide(d.getAttribute('data-decl'),'customer',false);
+    }catch(x){toast('Could not save')}
+  });
+  $('teamRefresh').addEventListener('click',loadTeam);
+  window.onGenSolarAdminDone=function(uid,approved){toast(approved?'Approved. They get access next time they open the app.':'Declined');loadTeam()};
+  window.onGenSolarAdminError=function(m){toast(m||'Something went wrong');var b=$('teamList');if(b&&b.textContent.indexOf('Loading')>-1)b.innerHTML='<p class="meta">'+esc(m||'Could not load')+'</p>'};
 
   /* ---------- in-app update check (GitHub Releases) ---------- */
   var UPDATE_API='https://api.github.com/repos/VEERA0007/gensolar-pro/releases/tags/latest',updateUrl='';

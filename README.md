@@ -56,3 +56,7 @@ This version merges the earlier v1.4 app with the extra work from the reference 
 - Role selection stores a *requested* role (`requestedRole` in `users/{uid}`). Access stays Customer until an administrator sets `role` (and `organizationId`) in the Firebase console.
 - Built-in update check: the app reads the latest GitHub Release and shows an "Update available" bar with a download button. To ship an update: bump `versionName`/`versionCode` in `app/build.gradle` and push to `main`; the workflow publishes `GenSolar-Pro-vX.Y.apk`, and installed apps offer it on next launch. Updates install over the old app because the signing key is fixed.
 - Not included yet: Google sign-in and email / Employee ID login (need Firebase Google provider + a backend for employee IDs).
+
+## v1.8 — Team approvals
+
+Managers and admins get a **Team** tab listing role requests. Approve gives `rep` (Sales Representative, Channel Partner) or `manager` (Sales Head, Regional Manager, Sales Manager); only an `admin` can approve manager requests. The `admin` role itself is set only in the Firebase console. First-time setup: on your own `users/{uid}` document set `role` = `admin` and `organizationId` = e.g. `genesis`. Publish the updated `firestore.rules`.

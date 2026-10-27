@@ -88,6 +88,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new PrintBridge(), "GenSolarNative");
         webView.addJavascriptInterface(new AuthBridge(), "GenSolarAuth");
         webView.addJavascriptInterface(new LeadBridge(), "GenSolarLeads");
+        webView.addJavascriptInterface(new AdminBridge(), "GenSolarAdmin");
         setContentView(webView);
         webView.loadUrl("file:///android_asset/index.html");
     }
@@ -219,6 +220,63 @@ public class MainActivity extends Activity {
                     .addOnFailureListener(e -> jsError("Signed in, but profile setup failed: " + e.getMessage()));
             }
         }).addOnFailureListener(e -> jsError("Could not load account role. Check Firestore rules: " + e.getMessage()));
+    }
+
+    private class AdminBridge {
+        private void adminError(String m) { js("window.onGenSolarAdminError && window.onGenSolarAdminError(" + JSONObject.quote(m) + ")"); }
+
+        @JavascriptInterface public void loadRequests() {
+            FirebaseUser me = auth == null ? null : auth.getCurrentUser();
+            if (me == null || db == null) { adminError("Sign in first."); return; }
+            db.collection("users").document(me.getUid()).get().addOnSuccessListener(profile -> {
+                String role = profile.getString("role");
+                String org = profile.getString("organizationId");
+                if (!("manager".equals(role) || "admin".equals(role))) { adminError("Only managers can review role requests."); return; }
+                if (org == null || org.isEmpty()) { adminError("Add an organizationId to your own account in Firebase first."); return; }
+                java.util.List<String> wanted = java.util.Arrays.asList("admin","sales_head","regional_manager","sales_manager","sales_rep","channel_partner");
+                db.collection("users").whereIn("requestedRole", wanted).get().addOnSuccessListener(snap -> {
+                    JSONArray rows = new JSONArray();
+                    for (com.google.firebase.firestore.DocumentSnapshot d : snap.getDocuments()) {
+                        try {
+                            JSONObject o = new JSONObject();
+                            o.put("uid", d.getId());
+                            o.put("phone", d.getString("phone") == null ? "" : d.getString("phone"));
+                            o.put("role", d.getString("role") == null ? "customer" : d.getString("role"));
+                            o.put("requestedRole", d.getString("requestedRole"));
+                            Long at = d.getLong("requestedAt");
+                            o.put("requestedAt", at == null ? 0 : at);
+                            String o2 = d.getString("organizationId");
+                            o.put("organizationId", o2 == null ? "" : o2);
+                            rows.put(o);
+                        } catch (Exception ignored) { }
+                    }
+                    js("window.onGenSolarRequests && window.onGenSolarRequests(JSON.parse(" + JSONObject.quote(rows.toString()) + "), " + JSONObject.quote(role) + ")");
+                }).addOnFailureListener(e -> adminError("Could not load requests. Publish the latest firestore.rules. " + e.getMessage()));
+            }).addOnFailureListener(e -> adminError("Could not load your profile."));
+        }
+
+        /** approve=true sets the role and organization; approve=false resets the request to customer. */
+        @JavascriptInterface public void decide(String uid, String newRole, boolean approve) {
+            FirebaseUser me = auth == null ? null : auth.getCurrentUser();
+            if (me == null || db == null || uid == null || uid.isEmpty()) { adminError("Sign in first."); return; }
+            if (approve && !("rep".equals(newRole) || "manager".equals(newRole))) { adminError("That role must be assigned in the Firebase console."); return; }
+            db.collection("users").document(me.getUid()).get().addOnSuccessListener(profile -> {
+                String org = profile.getString("organizationId");
+                if (org == null || org.isEmpty()) { adminError("Your account needs an organizationId."); return; }
+                Map<String,Object> data = new HashMap<>();
+                if (approve) {
+                    data.put("role", newRole);
+                    data.put("organizationId", org);
+                    data.put("approvedBy", me.getUid());
+                    data.put("approvedAt", System.currentTimeMillis());
+                } else {
+                    data.put("requestedRole", "customer");
+                }
+                db.collection("users").document(uid).update(data)
+                    .addOnSuccessListener(v -> js("window.onGenSolarAdminDone && window.onGenSolarAdminDone(" + JSONObject.quote(uid) + "," + approve + ")"))
+                    .addOnFailureListener(e -> adminError("Could not save. Only an admin can grant manager access. " + e.getMessage()));
+            }).addOnFailureListener(e -> adminError("Could not load your profile."));
+        }
     }
 
     private class LeadBridge {
