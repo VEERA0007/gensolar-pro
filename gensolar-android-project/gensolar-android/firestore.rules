@@ -26,9 +26,16 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if signedIn() && request.auth.uid == userId;
-      allow read: if hasProfile()
-        && isManager()
-        && resource.data.organizationId == myOrg();
+      // Managers and admins can list users so they can review role requests.
+      allow read: if hasProfile() && isManager();
+      // Managers approve or decline role requests. Only an admin can grant manager access;
+      // the admin role itself is assigned only in the Firebase console.
+      allow update: if hasProfile() && isManager()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['role', 'organizationId', 'requestedRole', 'approvedBy', 'approvedAt'])
+        && request.resource.data.role in ['customer', 'rep', 'manager']
+        && (request.resource.data.role != 'manager' || myRole() == 'admin' || resource.data.role == 'manager')
+        && request.resource.data.get('organizationId', '') in ['', myOrg()];
       // New accounts can create only their own customer profile.
       allow create: if signedIn()
         && request.auth.uid == userId
