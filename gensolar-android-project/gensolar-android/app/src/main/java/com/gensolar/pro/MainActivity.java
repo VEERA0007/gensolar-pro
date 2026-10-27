@@ -173,6 +173,15 @@ public class MainActivity extends Activity {
             });
         }
         @JavascriptInterface public void signOut() { if (auth != null) auth.signOut(); }
+        @JavascriptInterface public void saveProfile(String name, String email) {
+            FirebaseUser user = auth == null ? null : auth.getCurrentUser();
+            if (user == null || db == null) return;
+            Map<String,Object> data = new HashMap<>();
+            data.put("displayName", name == null ? "" : (name.length() > 80 ? name.substring(0, 80) : name));
+            data.put("email", email == null ? "" : (email.length() > 120 ? email.substring(0, 120) : email));
+            db.collection("users").document(user.getUid()).set(data, SetOptions.merge())
+                .addOnFailureListener(e -> Log.e("GenSolar", "Could not save profile", e));
+        }
         @JavascriptInterface public void saveDesignation(String key) {
             FirebaseUser user = auth == null ? null : auth.getCurrentUser();
             if (user == null || db == null || key == null) return;
@@ -196,10 +205,11 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void authSuccess(FirebaseUser user, String role, String requested) {
+    private void authSuccess(FirebaseUser user, String role, String requested, String name, String email) {
         String phone = user.getPhoneNumber() == null ? "" : user.getPhoneNumber();
         js("window.onGenSolarAuthSuccess && window.onGenSolarAuthSuccess(" + JSONObject.quote(user.getUid()) + ","
-            + JSONObject.quote(role) + "," + JSONObject.quote(phone) + "," + JSONObject.quote(requested == null ? "" : requested) + ")");
+            + JSONObject.quote(role) + "," + JSONObject.quote(phone) + "," + JSONObject.quote(requested == null ? "" : requested) + ","
+            + JSONObject.quote(name == null ? "" : name) + "," + JSONObject.quote(email == null ? "" : email) + ")");
     }
 
     private void ensureCustomerProfile(FirebaseUser user) {
@@ -209,14 +219,14 @@ public class MainActivity extends Activity {
             if (doc.exists()) {
                 String role = doc.getString("role");
                 if (role == null || role.isEmpty()) role = "customer";
-                authSuccess(user, role, doc.getString("requestedRole"));
+                authSuccess(user, role, doc.getString("requestedRole"), doc.getString("displayName"), doc.getString("email"));
             } else {
                 Map<String,Object> profile = new HashMap<>();
                 profile.put("uid", user.getUid());
                 profile.put("phone", user.getPhoneNumber() == null ? "" : user.getPhoneNumber());
                 profile.put("role", "customer");
                 profile.put("createdAt", System.currentTimeMillis());
-                ref.set(profile, SetOptions.merge()).addOnSuccessListener(v -> authSuccess(user, "customer", ""))
+                ref.set(profile, SetOptions.merge()).addOnSuccessListener(v -> authSuccess(user, "customer", "", "", ""))
                     .addOnFailureListener(e -> jsError("Signed in, but profile setup failed: " + e.getMessage()));
             }
         }).addOnFailureListener(e -> jsError("Could not load account role. Check Firestore rules: " + e.getMessage()));
@@ -243,6 +253,7 @@ public class MainActivity extends Activity {
                             o.put("phone", d.getString("phone") == null ? "" : d.getString("phone"));
                             o.put("role", d.getString("role") == null ? "customer" : d.getString("role"));
                             o.put("requestedRole", d.getString("requestedRole"));
+                            o.put("name", d.getString("displayName") == null ? "" : d.getString("displayName"));
                             Long at = d.getLong("requestedAt");
                             o.put("requestedAt", at == null ? 0 : at);
                             String o2 = d.getString("organizationId");
