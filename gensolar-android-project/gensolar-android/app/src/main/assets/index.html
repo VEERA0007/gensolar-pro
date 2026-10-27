@@ -1028,7 +1028,7 @@ function model(p){
     var comp=isCompany(),r=role();
     $('hsub').textContent=r==='guest'?'Guest · rooftop solar estimator':roleLabel()+' · rooftop solar estimator';
     $('tabLeads').hidden=(r==='guest');
-    $('tabEng').hidden=(r==='rep');
+    $('tabEng').hidden=(r!=='manager');
     $('tabTeam').hidden=!(session&&session.raw==='admin');
     $('tabLeadsLbl').textContent=comp?'Leads':'My estimates';
     paintAvatar();
@@ -1080,7 +1080,7 @@ function model(p){
   $('engCalc').addEventListener('click',function(){engSave();renderEngineering();toast('Preliminary design recalculated. Confirm with engineering before quoting.')});
   function showView(v){
     if(v==='leads'&&role()==='guest')v='est';
-    if(v==='engineering'&&role()==='rep'){v='est';history.replaceState(null,'','#est')}
+    if(v==='engineering'&&role()!=='manager'){v='est';history.replaceState(null,'','#est')}
     activeTab=v;
     ['est','leads','profile','engineering','team'].forEach(function(x){$('view-'+x).hidden=(x!==v)});
     document.querySelectorAll('.tabbar button').forEach(function(b){if(b.getAttribute('data-tab')===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
@@ -1093,7 +1093,7 @@ function model(p){
   }
   function route(){
     var h=location.hash.replace('#','');
-    var inApp=(h==='est'||h==='leads'||h==='profile'||(h==='engineering'&&role()!=='rep')||(h==='team'&&session&&session.raw==='admin'))&&session;
+    var inApp=(h==='est'||h==='leads'||h==='profile'||(h==='engineering'&&role()==='manager')||(h==='team'&&session&&session.raw==='admin'))&&session;
     $('app').hidden=!inApp;
     $('authGate').classList.toggle('hide-auth',!!inApp);
     if(inApp){showSheet(false);showView(h)}
@@ -1114,7 +1114,7 @@ function model(p){
   window.requestFeatureLogin=function(feature){
     if(session&&session.mode==='user'){
       if(role()==='guest'){showFeatureLogin(feature);return;}
-      if(feature==='Engineering'&&role()==='rep'){toast('Engineering is not enabled for your role');return}
+      if(feature==='Engineering'&&role()!=='manager'){toast('Engineering is available to managers and admins');return}
       toast(feature+' selected. Your account permissions will be checked.');
       location.hash=feature==='Engineering'?'#engineering':'#est';return;
     }
