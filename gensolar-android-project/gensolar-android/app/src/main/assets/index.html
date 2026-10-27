@@ -850,6 +850,7 @@ function model(p){
   function last10(p){return String(p||'').replace(/\D/g,'').slice(-10)}
   function normRole(r){r=String(r||'').toLowerCase();if(r==='manager'||r==='admin')return'manager';if(r==='rep'||r==='representative')return'rep';return'customer'}
   var ROLE_LABEL={guest:'Guest',customer:'Customer',rep:'Representative',manager:'Manager'};
+  function roleLabel(){var r=role();return (session&&session.raw==='admin'&&r==='manager')?'Admin':ROLE_LABEL[r]}
   function role(){return session?(session.mode==='guest'?'guest':session.role):'guest'}
   function isCompany(){var r=role();return r==='rep'||r==='manager'}
 
@@ -866,8 +867,8 @@ function model(p){
     $('pfName').value=p.name||'';$('pfEmail').value=p.email||'';
     $('pfPhone').value=(session&&session.phone)||p.phone||'';
     $('pfPhone').readOnly=!!(session&&session.phone);
-    $('pfRole').textContent=ROLE_LABEL[r]+((session&&session.requested&&session.requested!=='customer')?(desRole(session.requested)===r?' · '+desName(session.requested):' · '+desName(session.requested)+' requested (pending approval)'):'');
-    $('pfNote').textContent=r==='guest'?'You are browsing as a guest. Sign in to save estimates and your profile.':(r==='customer'?'Company and management access is given by an administrator.':'Company account.');
+    $('pfRole').textContent=roleLabel()+((session&&session.requested&&session.requested!=='customer')?(desRole(session.requested)===r?' · '+desName(session.requested):' · '+desName(session.requested)+' requested (pending approval)'):'');
+    $('pfNote').textContent=r==='guest'?'You are browsing as a guest. Sign in to save estimates and your profile.':(r==='customer'?'Company and management access is given by an administrator.':((session&&session.raw!=='admin'&&session.requested==='admin')?'Company account. To unlock the Team page, an administrator must set your account role to admin in Firebase.':'Company account.'));
     $('pfSignOut').hidden=(r==='guest');$('pfSignIn').hidden=(r!=='guest');
     paintAvatar();
   }
@@ -1025,7 +1026,7 @@ function model(p){
   }
   function paintShell(){
     var comp=isCompany(),r=role();
-    $('hsub').textContent=r==='guest'?'Guest · rooftop solar estimator':ROLE_LABEL[r]+' · rooftop solar estimator';
+    $('hsub').textContent=r==='guest'?'Guest · rooftop solar estimator':roleLabel()+' · rooftop solar estimator';
     $('tabLeads').hidden=(r==='guest');
     $('tabTeam').hidden=!(session&&session.raw==='admin');
     $('tabLeadsLbl').textContent=comp?'Leads':'My estimates';
