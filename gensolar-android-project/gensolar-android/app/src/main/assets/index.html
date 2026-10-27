@@ -418,7 +418,7 @@ html,body{margin:0;height:100%;background:#fff}
         <div class="field"><label for="pfPhoto">Profile photo</label><input id="pfPhoto" type="file" accept="image/*"><small>Saved on this phone only.</small></div>
         <div class="qrow"><button class="btn" id="pfSave" type="button">Save profile</button><button class="btn alt" id="pfRemove" type="button">Remove photo</button></div>
         <div class="qrow"><button class="btn danger" id="pfSignOut" type="button">Sign out</button><button class="btn" id="pfSignIn" type="button" hidden>Sign in with OTP</button></div>
-        <small style="color:var(--muted)">GenSolar Pro 1.4</small>
+        <small id="verLabel" style="color:var(--muted)">GenSolar Pro</small>
       </div>
     </section>
 
@@ -1208,6 +1208,7 @@ function model(p){
     $('updateBar').hidden=true;
   });
   $('updateLater').addEventListener('click',function(){lsSet('gs_update_skip',$('updateBar').dataset.v||'');$('updateBar').hidden=true});
+  try{var _v=window.GenSolarNative&&window.GenSolarNative.appVersion?String(window.GenSolarNative.appVersion()):'';if(_v)$('verLabel').textContent='GenSolar Pro '+_v}catch(e){}
   setTimeout(checkForUpdate,3000);
   paintAvatar();route();
 })();
